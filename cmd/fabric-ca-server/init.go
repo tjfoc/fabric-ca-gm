@@ -51,6 +51,6 @@ func runInit(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		util.Fatal("Initialization failure: %s", err)
 	}
-	log.Info("Initialization was successful")
+	log.Info("xxxxx Initialization was successful")
 	return nil
 }
