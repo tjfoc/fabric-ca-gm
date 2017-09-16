@@ -174,7 +174,7 @@ func ParseSm2PublicKey(der []byte) (*PublicKey, error) {
 	return &pub, nil
 }
 
-func marshalSm2PublicKey(key *PublicKey) ([]byte, error) {
+func MarshalSm2PublicKey(key *PublicKey) ([]byte, error) {
 	var r pkixPublicKey
 	var algo pkix.AlgorithmIdentifier
 
@@ -458,7 +458,7 @@ func ReadPublicKeyFromPem(FileName string, pwd []byte) (*PublicKey, error) {
 }
 
 func WritePublicKeytoMem(key *PublicKey, _ []byte) ([]byte, error) {
-	der, err := marshalSm2PublicKey(key)
+	der, err := MarshalSm2PublicKey(key)
 	if err != nil {
 		return nil, err
 	}
@@ -470,7 +470,7 @@ func WritePublicKeytoMem(key *PublicKey, _ []byte) ([]byte, error) {
 }
 
 func WritePublicKeytoPem(FileName string, key *PublicKey, _ []byte) (bool, error) {
-	der, err := marshalSm2PublicKey(key)
+	der, err := MarshalSm2PublicKey(key)
 	if err != nil {
 		return false, err
 	}

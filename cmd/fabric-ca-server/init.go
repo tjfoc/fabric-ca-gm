@@ -44,6 +44,7 @@ func init() {
 
 // The server init main logic
 func runInit(cmd *cobra.Command, args []string) error {
+	log.Info("xxx begin runInit")
 	if len(args) > 0 {
 		return fmt.Errorf("Usage: too many arguments.\n%s", initCmd.UsageString())
 	}

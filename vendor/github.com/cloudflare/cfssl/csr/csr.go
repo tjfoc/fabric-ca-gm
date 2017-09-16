@@ -19,6 +19,7 @@ import (
 	cferr "github.com/cloudflare/cfssl/errors"
 	"github.com/cloudflare/cfssl/helpers"
 	"github.com/cloudflare/cfssl/log"
+	"github.com/hyperledger/fabric/bccsp/gm/sm2"
 )
 
 const (
@@ -53,7 +54,8 @@ type BasicKeyRequest struct {
 
 // NewBasicKeyRequest returns a default BasicKeyRequest.
 func NewBasicKeyRequest() *BasicKeyRequest {
-	return &BasicKeyRequest{"ecdsa", curveP256}
+	//return &BasicKeyRequest{"ecdsa", curveP256}
+	return &BasicKeyRequest{"gmsm2", curveP256}
 }
 
 // Algo returns the requested key algorithm represented as a string.
@@ -92,6 +94,8 @@ func (kr *BasicKeyRequest) Generate() (crypto.PrivateKey, error) {
 			return nil, errors.New("invalid curve")
 		}
 		return ecdsa.GenerateKey(curve, rand.Reader)
+	case "gmsm2":
+		return sm2.GenerateKey()
 	default:
 		return nil, errors.New("invalid algorithm")
 	}

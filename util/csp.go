@@ -59,11 +59,13 @@ func InitBCCSP(optsPtr **factory.FactoryOpts, mspDir, homeDir string) (bccsp.BCC
 	if err != nil {
 		return nil, err
 	}
+	log.Infof("xxx GetBCCSP return:%+v",csp)
 	return csp, nil
 }
 
 // ConfigureBCCSP configures BCCSP, using
 func ConfigureBCCSP(optsPtr **factory.FactoryOpts, mspDir, homeDir string) error {
+	log.Info("xxx csp.go in ConfigureBCCSP")
 	var err error
 	if optsPtr == nil {
 		return errors.New("nil argument not allowed")
@@ -72,9 +74,11 @@ func ConfigureBCCSP(optsPtr **factory.FactoryOpts, mspDir, homeDir string) error
 	if opts == nil {
 		opts = &factory.FactoryOpts{}
 	}
+	log.Infof("xxx csp.go opts.ProviderName [%s]",opts.ProviderName)
 	if opts.ProviderName == "" {
 		opts.ProviderName = "SW"
 	}
+
 	if strings.ToUpper(opts.ProviderName) == "SW" {
 		if opts.SwOpts == nil {
 			opts.SwOpts = &factory.SwOpts{}
@@ -95,6 +99,27 @@ func ConfigureBCCSP(optsPtr **factory.FactoryOpts, mspDir, homeDir string) error
 			opts.SwOpts.FileKeystore.KeyStorePath = path.Join("msp", "keystore")
 		}
 	}
+	if strings.ToUpper(opts.ProviderName) == "GM" {
+		if opts.SwOpts == nil {
+			opts.SwOpts = &factory.SwOpts{}
+		}
+		if opts.SwOpts.HashFamily == "" {
+			opts.SwOpts.HashFamily = "GMSM3"
+		}
+		if opts.SwOpts.SecLevel == 0 {
+			opts.SwOpts.SecLevel = 256
+		}
+		if opts.SwOpts.FileKeystore == nil {
+			opts.SwOpts.FileKeystore = &factory.FileKeystoreOpts{}
+		}
+		// The mspDir overrides the KeyStorePath; otherwise, if not set, set default
+		if mspDir != "" {
+			opts.SwOpts.FileKeystore.KeyStorePath = path.Join(mspDir, "keystore")
+		} else if opts.SwOpts.FileKeystore.KeyStorePath == "" {
+			opts.SwOpts.FileKeystore.KeyStorePath = path.Join("msp", "keystore")
+		}
+	}
+
 	err = makeFileNamesAbsolute(opts, homeDir)
 	if err != nil {
 		return fmt.Errorf("Failed to make BCCSP files absolute: %s", err)
@@ -199,6 +224,8 @@ func getBCCSPKeyOpts(kr csr.KeyRequest, ephemeral bool) (opts bccsp.KeyGenOpts, 
 		default:
 			return nil, fmt.Errorf("Invalid ECDSA key size: %d", kr.Size())
 		}
+	case "gmsm2":
+		return &bccsp.GMSM2KeyGenOpts{Temporary: ephemeral}, nil
 	default:
 		return nil, fmt.Errorf("Invalid algorithm: %s", kr.Algo())
 	}
@@ -257,6 +284,7 @@ func BCCSPKeyRequestGenerate(req *csr.CertificateRequest, myCSP bccsp.BCCSP) (bc
 		return nil, nil, err
 	}
 
+	log.Info("xxxx begin cspsigner.New()")
 	cspSigner, err := cspsigner.New(myCSP, key)
 	if err != nil {
 		return nil, nil, fmt.Errorf("Failed initializing CryptoSigner: %s", err.Error())

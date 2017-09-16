@@ -22,7 +22,8 @@ import (
 	"io"
 
 	"github.com/hyperledger/fabric/bccsp"
-	"github.com/hyperledger/fabric/bccsp/utils"
+	"github.com/hyperledger/fabric/bccsp/gm/sm2"
+	// "github.com/hyperledger/fabric/bccsp/utils"
 )
 
 // bccspCryptoSigner is the BCCSP-based implementation of a crypto.Signer
@@ -57,7 +58,10 @@ func New(csp bccsp.BCCSP, key bccsp.Key) (crypto.Signer, error) {
 		return nil, fmt.Errorf("failed marshalling public key [%s]", err)
 	}
 
-	pk, err := utils.DERToPublicKey(raw)
+	//
+	pk, err := sm2.ParseSm2PublicKey(raw)
+
+	//pk, err := utils.DERToPublicKey(raw)
 	if err != nil {
 		return nil, fmt.Errorf("failed marshalling der to public key [%s]", err)
 	}
