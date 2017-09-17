@@ -477,6 +477,9 @@ func DERToPublicKey(raw []byte) (pub interface{}, err error) {
 	}
 
 	key, err := x509.ParsePKIXPublicKey(raw)
+	if err != nil {
+		key, err = sm2.ParseSm2PublicKey(raw)
+	}
 
 	return key, err
 }
