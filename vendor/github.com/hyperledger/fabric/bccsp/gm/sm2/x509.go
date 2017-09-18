@@ -1513,7 +1513,7 @@ func parseCertificateByStruct(in *certificate) (*Certificate, error) {
 	return out, nil
 }
 
-func parseCertificate(asn1Data []byte) (*Certificate, error) {
+func ParseCertificate(asn1Data []byte) (*Certificate, error) {
 	var cert certificate
 	rest, err := asn1.Unmarshal(asn1Data, &cert)
 	if err != nil {
@@ -1527,7 +1527,7 @@ func parseCertificate(asn1Data []byte) (*Certificate, error) {
 
 // ParseCertificates parses one or more certificates from the given ASN.1 DER
 // data. The certificates must be concatenated with no intermediate padding.
-func parseCertificates(asn1Data []byte) ([]*Certificate, error) {
+func ParseCertificates(asn1Data []byte) ([]*Certificate, error) {
 	var v []*certificate
 	for len(asn1Data) > 0 {
 		cert := new(certificate)
@@ -1563,7 +1563,7 @@ func parseCertificates(asn1Data []byte) ([]*Certificate, error) {
 //
 // All keys types that are implemented via crypto.Signer are supported (This
 // includes *rsa.PublicKey and *ecdsa.PublicKey.)
-func createCertificate(rand io.Reader, template, parent *Certificate,
+func CreateCertificate(rand io.Reader, template, parent *Certificate,
 	pubKey *PublicKey, privKey *PrivateKey) (cert []byte, err error) {
 	if template.SerialNumber == nil {
 		return nil, errors.New("x509: no SerialNumber given")
@@ -1640,7 +1640,7 @@ func createCertificate(rand io.Reader, template, parent *Certificate,
 
 // ParseCertificateRequest parses a single certificate request from the
 // given ASN.1 DER data.
-func parseCertificateRequest(asn1Data []byte) (*CertificateRequest, error) {
+func ParseCertificateRequest(asn1Data []byte) (*CertificateRequest, error) {
 	var csr certificateRequest
 	rest, err := asn1.Unmarshal(asn1Data, &csr)
 	if err != nil {
@@ -1697,7 +1697,7 @@ func parseCertificateRequestByStruct(in *certificateRequest) (*CertificateReques
 	return out, nil
 }
 
-func createCertificateRequest(rand io.Reader, template *CertificateRequest, privKey *PrivateKey) ([]byte, error) {
+func CreateCertificateRequest(rand io.Reader, template *CertificateRequest, privKey *PrivateKey) ([]byte, error) {
 	hashFunc, sigAlgo, err := signingParamsForPublicKey(privKey.Public(),
 		template.SignatureAlgorithm)
 	if err != nil {
@@ -1827,7 +1827,7 @@ func ReadCertificateRequestFromMem(data []byte) (*CertificateRequest, error) {
 	if block == nil {
 		return nil, errors.New("failed to decode certificate request")
 	}
-	return parseCertificateRequest(block.Bytes)
+	return ParseCertificateRequest(block.Bytes)
 }
 
 func ReadCertificateRequestFromPem(FileName string) (*CertificateRequest, error) {
@@ -1839,7 +1839,7 @@ func ReadCertificateRequestFromPem(FileName string) (*CertificateRequest, error)
 }
 
 func CreateCertificateRequestToMem(template *CertificateRequest, privKey *PrivateKey) ([]byte, error) {
-	der, err := createCertificateRequest(rand.Reader, template, privKey)
+	der, err := CreateCertificateRequest(rand.Reader, template, privKey)
 	if err != nil {
 		return nil, err
 	}
@@ -1852,7 +1852,7 @@ func CreateCertificateRequestToMem(template *CertificateRequest, privKey *Privat
 
 func CreateCertificateRequestToPem(FileName string, template *CertificateRequest,
 	privKey *PrivateKey) (bool, error) {
-	der, err := createCertificateRequest(rand.Reader, template, privKey)
+	der, err := CreateCertificateRequest(rand.Reader, template, privKey)
 	if err != nil {
 		return false, err
 	}
@@ -1877,7 +1877,7 @@ func ReadCertificateFromMem(data []byte) (*Certificate, error) {
 	if block == nil {
 		return nil, errors.New("failed to decode certificate request")
 	}
-	return parseCertificate(block.Bytes)
+	return ParseCertificate(block.Bytes)
 }
 
 func ReadCertificateFromPem(FileName string) (*Certificate, error) {
@@ -1889,7 +1889,7 @@ func ReadCertificateFromPem(FileName string) (*Certificate, error) {
 }
 
 func CreateCertificateToMem(template, parent *Certificate, pubKey *PublicKey, privKey *PrivateKey) ([]byte, error) {
-	der, err := createCertificate(rand.Reader, template, parent, pubKey, privKey)
+	der, err := CreateCertificate(rand.Reader, template, parent, pubKey, privKey)
 	if err != nil {
 		return nil, err
 	}
@@ -1901,7 +1901,7 @@ func CreateCertificateToMem(template, parent *Certificate, pubKey *PublicKey, pr
 }
 
 func CreateCertificateToPem(FileName string, template, parent *Certificate, pubKey *PublicKey, privKey *PrivateKey) (bool, error) {
-	der, err := createCertificate(rand.Reader, template, parent, pubKey, privKey)
+	der, err := CreateCertificate(rand.Reader, template, parent, pubKey, privKey)
 	if err != nil {
 		return false, err
 	}
