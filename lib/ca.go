@@ -17,6 +17,9 @@ limitations under the License.
 package lib
 
 import (
+	"math/big"
+	"github.com/hyperledger/fabric/bccsp/gm/sm2"
+	"github.com/hyperledger/fabric/bccsp/gm"
 	"crypto/dsa"
 	"crypto/ecdsa"
 	"crypto/rsa"
@@ -313,23 +316,49 @@ func (ca *CA) getCACert() (cert []byte, err error) {
 		if csr.CA.Expiry == "" {
 			csr.CA.Expiry = defaultRootCACertificateExpiration
 		}
+
+		log.Infof("xxxxx xxxx ca %s",ca.Config.CSP.ProviderName)
+		KeyRequest := cfcsr.NewBasicKeyRequest()
+		if "GM" == ca.Config.CSP.ProviderName {
+			KeyRequest = cfcsr.NewGMKeyRequest()
+		}
+
 		req := cfcsr.CertificateRequest{
 			CN:    csr.CN,
 			Names: csr.Names,
 			Hosts: csr.Hosts,
 			// FIXME: NewBasicKeyRequest only does ecdsa 256; use config
-			KeyRequest:   cfcsr.NewBasicKeyRequest(),
+			KeyRequest:   KeyRequest,
 			CA:           csr.CA,
 			SerialNumber: csr.SerialNumber,
 		}
 		log.Debugf("Root CA certificate request: %+v", req)
 		// Generate the key/signer
-		_, cspSigner, err := util.BCCSPKeyRequestGenerate(&req, ca.csp)
+		key, cspSigner, err := util.BCCSPKeyRequestGenerate(&req, ca.csp)
 		if err != nil {
 			return nil, err
 		}
 		// Call CFSSL to initialize the CA
-		cert, _, err = initca.NewFromSigner(&req, cspSigner)
+		switch cspSigner.Public().(type) {
+		case *sm2.PublicKey:
+			log.Info("xxxx create GM CreateCertificate")
+			template := &sm2.Certificate{
+				SerialNumber: big.NewInt(12),
+				// Subject:            csrv.Subject,
+				// PublicKeyAlgorithm: csrv.PublicKeyAlgorithm,
+				// PublicKey:          csrv.PublicKey,
+				// SignatureAlgorithm: s.SigAlgo(),
+				// DNSNames:           csrv.DNSNames,
+				// IPAddresses:        csrv.IPAddresses,
+				// EmailAddresses:     csrv.EmailAddresses,
+			}
+			// rand.Read(&template.SerialNumber)
+
+			cert ,err = gm.CreateCertificateToMem(template,template,key)
+		default:
+			log.Info("xxxx initca.NewFromSigner ")
+			cert, _, err = initca.NewFromSigner(&req, cspSigner)
+		}
 		if err != nil {
 			return nil, fmt.Errorf("Failed to create new CA certificate: %s", err)
 		}
@@ -596,12 +625,15 @@ func (ca *CA) initEnrollmentSigner() (err error) {
 	}
 
 	ca.enrollSigner, err = util.BccspBackedSigner(c.CA.Certfile, c.CA.Keyfile, policy, ca.csp)
+
+	log.Infof("xxx end ca.go  util.BccspBackedSigner,error: %s",err)
 	if err != nil {
 		return err
 	}
 	ca.enrollSigner.SetDBAccessor(ca.certDBAccessor)
 
 	// Successful enrollment
+	log.Info("xxxx Successful enrollment")
 	return nil
 }
 
