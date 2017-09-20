@@ -479,7 +479,16 @@ func GetX509CertificateFromPEM(cert []byte) (*x509.Certificate, error) {
 	if block == nil {
 		return nil, errors.New("Failed to PEM decode certificate")
 	}
-	x509Cert, err := x509.ParseCertificate(block.Bytes)
+	var x509Cert *x509.Certificate
+	var err error
+	if IsGMConfig() {
+		sm2x509Cert, err := sm2.ParseCertificate(block.Bytes)
+		if err == nil {
+			x509Cert = ParseSm2Certificate2X509(sm2x509Cert)
+		}
+	}else{
+		x509Cert, err = x509.ParseCertificate(block.Bytes)
+	}
 	if err != nil {
 		return nil, fmt.Errorf("Error parsing certificate: %s", err)
 	}
@@ -691,7 +700,7 @@ func Read(r io.Reader, data []byte) ([]byte, error) {
 }
 
 
-
+//sm2 证书转换 x509 证书
 func ParseSm2Certificate2X509 (sm2Cert *sm2.Certificate) *x509.Certificate{
 	x509cert := &x509.Certificate{
 		Raw: sm2Cert.Raw,
@@ -701,11 +710,10 @@ func ParseSm2Certificate2X509 (sm2Cert *sm2.Certificate) *x509.Certificate{
 		RawIssuer:	sm2Cert.RawIssuer,
 
 		Signature:	sm2Cert.Signature,
-		// SignatureAlgorithm:	{sm2Cert.SignatureAlgorithm},
+		SignatureAlgorithm:	x509.SignatureAlgorithm(sm2Cert.SignatureAlgorithm),
 		
 		
-
-		//PublicKeyAlgorithm:	sm2Cert.PublicKeyAlgorithm,
+		PublicKeyAlgorithm:	x509.PublicKeyAlgorithm(sm2Cert.PublicKeyAlgorithm),
 		PublicKey:	sm2Cert.PublicKey,
 		
 		Version:	sm2Cert.Version,
@@ -714,7 +722,7 @@ func ParseSm2Certificate2X509 (sm2Cert *sm2.Certificate) *x509.Certificate{
 		Subject:	sm2Cert.Subject,
 		NotBefore:	sm2Cert.NotBefore,
 		NotAfter:	sm2Cert.NotAfter,
-		// KeyUsage:	x509.KeyUsage{},
+		KeyUsage:	x509.KeyUsage(sm2Cert.KeyUsage),
 
 		Extensions:	sm2Cert.Extensions,
 
@@ -722,7 +730,7 @@ func ParseSm2Certificate2X509 (sm2Cert *sm2.Certificate) *x509.Certificate{
 
 		UnhandledCriticalExtensions:	sm2Cert.UnhandledCriticalExtensions,
 
-		// ExtKeyUsage:	sm2Cert.ExtKeyUsage,
+		//ExtKeyUsage:	[]x509.ExtKeyUsage(sm2Cert.ExtKeyUsage) ,
 		UnknownExtKeyUsage:	sm2Cert.UnknownExtKeyUsage,
 
 		BasicConstraintsValid:	sm2Cert.BasicConstraintsValid,
@@ -754,7 +762,26 @@ func ParseSm2Certificate2X509 (sm2Cert *sm2.Certificate) *x509.Certificate{
 		CRLDistributionPoints:	sm2Cert.CRLDistributionPoints,
 
 		PolicyIdentifiers:	sm2Cert.PolicyIdentifiers,
-
 	}
+	for _, val := range sm2Cert.ExtKeyUsage{
+		x509cert.ExtKeyUsage = append(x509cert.ExtKeyUsage, x509.ExtKeyUsage(val))
+	}
+
 	return x509cert
+}
+
+var providerName string
+
+func IsGMConfig() bool{
+	if providerName == "" {
+		return false
+	}
+	if strings.ToUpper(providerName) == "GM" {
+		return true
+	}
+	return false
+}
+
+func SetProviderName(name string){
+	providerName = name
 }

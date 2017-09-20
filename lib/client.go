@@ -56,6 +56,7 @@ type Client struct {
 
 // Init initializes the client
 func (c *Client) Init() error {
+	SetProviderName(c.Config.CSP.ProviderName)
 	if !c.initialized {
 		cfg := c.Config
 		log.Debugf("Initializing client with config: %+v", cfg)
@@ -234,14 +235,22 @@ func (c *Client) GenCSR(req *api.CSRInfo, id string) ([]byte, bccsp.Key, error) 
 	if cr.KeyRequest == nil {
 		cr.KeyRequest = csr.NewBasicKeyRequest()
 	}
-
+	if IsGMConfig() {
+		cr.KeyRequest = csr.NewGMKeyRequest()
+	}
 	key, cspSigner, err := util.BCCSPKeyRequestGenerate(cr, c.csp)
 	if err != nil {
 		log.Debugf("failed generating BCCSP key: %s", err)
 		return nil, nil, err
 	}
 
-	csrPEM, err := csr.Generate(cspSigner, cr)
+	var csrPEM []byte
+	if IsGMConfig() {
+		csrPEM, err = generate(cspSigner,cr,key)
+	}else{
+		csrPEM, err = csr.Generate(cspSigner, cr)
+	}
+	
 	if err != nil {
 		log.Debugf("failed generating CSR: %s", err)
 		return nil, nil, err

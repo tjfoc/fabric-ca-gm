@@ -89,6 +89,7 @@ type Server struct {
 // Init initializes a fabric-ca server
 func (s *Server) Init(renew bool) (err error) {
 	// Initialize the config
+	log.Infof("xxx in Server Init,renew:%t",renew)
 	err = s.initConfig()
 	if err != nil {
 		return err

@@ -149,9 +149,11 @@ func getCertFromAuthHdr(r *http.Request) (*x509.Certificate, error) {
 
 // genRootKey generates a new root key
 func genRootKey(csp bccsp.BCCSP) (bccsp.Key, error) {
-	log.Info("xxxxxx entry servertcert.go genRootKey")
-	//opts := &bccsp.AES256KeyGenOpts{Temporary: true}
-	opts := &bccsp.GMSM2KeyGenOpts{Temporary: true}
-	log.Info("xxxxxx end servertcert.go genRootKey")
+	var opts bccsp.KeyGenOpts
+	if IsGMConfig() {
+		opts = &bccsp.GMSM2KeyGenOpts{Temporary: true}
+	}else{
+		opts = &bccsp.AES256KeyGenOpts{Temporary: true}
+	}
 	return csp.KeyGen(opts)
 }

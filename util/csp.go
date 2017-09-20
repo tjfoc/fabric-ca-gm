@@ -61,7 +61,6 @@ func InitBCCSP(optsPtr **factory.FactoryOpts, mspDir, homeDir string) (bccsp.BCC
 	if err != nil {
 		return nil, err
 	}
-	log.Infof("xxx GetBCCSP return:%+v",csp)
 	return csp, nil
 }
 
@@ -80,7 +79,7 @@ func ConfigureBCCSP(optsPtr **factory.FactoryOpts, mspDir, homeDir string) error
 	if opts.ProviderName == "" {
 		opts.ProviderName = "SW"
 	}
-
+	SetProviderName(opts.ProviderName)
 	if strings.ToUpper(opts.ProviderName) == "SW" {
 		if opts.SwOpts == nil {
 			opts.SwOpts = &factory.SwOpts{}
@@ -167,11 +166,9 @@ func makeFileNamesAbsolute(opts *factory.FactoryOpts, homeDir string) error {
 // BccspBackedSigner attempts to create a signer using csp bccsp.BCCSP. This csp could be SW (golang crypto)
 // PKCS11 or whatever BCCSP-conformant library is configured
 func BccspBackedSigner(caFile, keyFile string, policy *config.Signing, csp bccsp.BCCSP) (signer.Signer, error) {
-
 	log.Infof("xxxx in BccspBackedSigner,caFile:%s",caFile)
-
 	_, cspSigner, parsedCa, err := GetSignerFromCertFile(caFile, csp)
-	log.Infof("xxx yyyy  end GetSignerFromCertFile error, %s",err)
+	log.Infof("xxx  end GetSignerFromCertFile error, %s",err)
 	if err != nil {
 		// Fallback: attempt to read out of keyFile and import
 		log.Debugf("No key found in BCCSP keystore, attempting fallback")
@@ -197,7 +194,7 @@ func BccspBackedSigner(caFile, keyFile string, policy *config.Signing, csp bccsp
 	if err != nil {
 		return nil, fmt.Errorf("Failed to create new signer: %s", err.Error())
 	}
-	log.Info("xxxx yyy end BccspBackedSigner,successful")
+	log.Info("xxxx  end BccspBackedSigner,successful")
 	return signer, nil
 }
 
@@ -255,14 +252,11 @@ func GetSignerFromCert(cert *x509.Certificate, csp bccsp.BCCSP) (bccsp.Key, cryp
 		log.Infof("xxxxx cert is default puk")
 	}
 
-
 	// get the public key in the right format
 	certPubK, err := csp.KeyImport(cert, &bccsp.X509PublicKeyImportOpts{Temporary: true})
 	if err != nil {
-		log.Infof("xxxx  csp.KeyImport error %s",err)
 		return nil, nil, fmt.Errorf("Failed to import certificate's public key: %s", err.Error())
 	}
-	
 
 	kname := hex.EncodeToString(certPubK.SKI())
 	log.Infof("xxxx begin csp.GetKey kname:%s",kname)
@@ -270,17 +264,13 @@ func GetSignerFromCert(cert *x509.Certificate, csp bccsp.BCCSP) (bccsp.Key, cryp
 	// Get the key given the SKI value
 	privateKey, err := csp.GetKey(certPubK.SKI())
 	if err != nil {
-		log.Infof("xxxx  csp.GetKey error %s",err)
 		return nil, nil, fmt.Errorf("Could not find matching private key for SKI: %s", err.Error())
 	}
 
-
-	log.Info("xxxx begin cspsigner.New")
+	log.Info("xxxx begin cspsigner.New()")
 	// Construct and initialize the signer
 	signer, err := cspsigner.New(csp, privateKey)
-	log.Info("xxxx end cspsigner.New err %s",err)
 	if err != nil {
-		log.Infof("xxxx cspsigner.New error %s",err)
 		return nil, nil, fmt.Errorf("Failed to load ski from bccsp: %s", err.Error())
 	}
 	log.Info("xxxx end GetSignerFromCert successfuul")
@@ -289,14 +279,15 @@ func GetSignerFromCert(cert *x509.Certificate, csp bccsp.BCCSP) (bccsp.Key, cryp
 
 // GetSignerFromCertFile load skiFile and load private key represented by ski and return bccsp signer that conforms to crypto.Signer
 func GetSignerFromCertFile(certFile string, csp bccsp.BCCSP) (bccsp.Key, crypto.Signer, *x509.Certificate, error) {
-	log.Error("xxxx in GetSignerFromCertFile")
 	var parsedCa *x509.Certificate
-	parsedSm2Ca, err := sm2.ReadCertificateFromPem(certFile)
-	if err == nil {
-		log.Error("xxxx sm2.ReadCertificateFromPem ok.")
+	var err error
+	if IsGMConfig() {
+		parsedSm2Ca, err := sm2.ReadCertificateFromPem(certFile)
+		if err != nil {
+			return nil, nil, nil, fmt.Errorf("Could not Read sm2 CertificateFromPem [%s]: %s", certFile, err.Error())
+		}
 		parsedCa = ParseSm2Certificate2X509(parsedSm2Ca)
 	}else{
-		log.Error("xxxx sm2.ReadCertificateFromPem not ok. begin ecdsa")
 		// Load cert file
 		certBytes, err := ioutil.ReadFile(certFile)
 		if err != nil {
@@ -309,7 +300,6 @@ func GetSignerFromCertFile(certFile string, csp bccsp.BCCSP) (bccsp.Key, crypto.
 	if err != nil {
 		return nil, nil, nil, err
 	}
-	log.Error("xxxx casp.go begin call GetSignerFromCert")
 	// Get the signer from the cert
 	key, cspSigner, err := GetSignerFromCert(parsedCa, csp)
 	return key, cspSigner, parsedCa, err

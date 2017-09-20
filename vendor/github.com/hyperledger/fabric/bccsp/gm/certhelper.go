@@ -9,35 +9,99 @@ import(
 	"math/big"
 )
 
-func CreateCertificateToMem(template, parent *sm2.Certificate,key bccsp.Key) ([]byte, error) {
-	pk := key.(*gmsm2PrivateKey).privKey
-	puk := &pk.PublicKey
-	if template.PublicKey == nil{
-		template.PublicKey = puk
-	}
-	if parent.PublicKey == nil{
-		parent.PublicKey = puk
-	}
-	
 
-	return sm2.CreateCertificateToMem(template,parent,puk,pk)
+
+
+// //调用SM2接口生成SM2证书
+// func CreateCertificateToMem(template, parent *x509.Certificate,key bccsp.Key) (cert []byte,err error) {
+// 	pk := key.(*gmsm2PrivateKey).privKey
+// 	bigint := getRandBigInt()
+// 	if(template.SerialNumber == nil){
+// 		template.SerialNumber = bigint
+// 	}
+// 	if parent.SerialNumber == nil{
+// 		parent.SerialNumber = bigint
+// 	}
+
+// 	sm2Temcert := ParseX509Certificate2Sm2(template)
+// 	sm2Parcert := ParseX509Certificate2Sm2(parent)
+// 	switch template.PublicKey.(type){
+// 	case sm2.PublicKey:
+// 		cert, err = sm2.CreateCertificateToMem(sm2Temcert,sm2Parcert, template.PublicKey.(*sm2.PublicKey),pk)
+// 		return
+// 	default:
+// 		return nil ,fmt.Errorf("gm certhelper not sm2.PublicKey")
+// 	}
+// }
+
+
+// //调用SM2接口生成SM2证书请求
+// func CreateCertificateRequestToMem(certificateRequest *x509.CertificateRequest,key bccsp.Key) (csr []byte,err error) {
+// 	pk := key.(*gmsm2PrivateKey).privKey
+// 	sm2Req := ParseX509CertificateRequest2Sm2(certificateRequest)
+// 	csr,err = sm2.CreateCertificateRequestToMem(sm2Req,pk)
+// 	return
+// }
+
+
+//调用SM2接口生成SM2证书
+func CreateCertificateToMem(template, parent *sm2.Certificate,key bccsp.Key) (cert []byte,err error) {
+	pk := key.(*gmsm2PrivateKey).privKey
+	puk := template.PublicKey.(sm2.PublicKey)
+	cert, err = sm2.CreateCertificateToMem(template,parent,&puk,pk)
+	return
 }
 
 
-func dd(template *sm2.Certificate){
+//调用SM2接口生成SM2证书请求
+func CreateSm2CertificateRequestToMem(certificateRequest *sm2.CertificateRequest,key bccsp.Key) (csr []byte,err error) {
+	pk := key.(*gmsm2PrivateKey).privKey
+	csr,err = sm2.CreateCertificateRequestToMem(certificateRequest,pk)
+	return
+}
 
-	serialNumber := make([]byte, 20)
-	_, err := io.ReadFull(rand.Reader, serialNumber)
-	if err != nil {
-		//return nil, cferr.Wrap(cferr.CertificateError, cferr.Unknown, err)
+
+
+// X509 证书请求转换 SM2证书请求
+func ParseX509CertificateRequest2Sm2(x509req *x509.CertificateRequest) *sm2.CertificateRequest{
+	sm2req := &sm2.CertificateRequest{
+		Raw:                      x509req.Raw, // Complete ASN.1 DER content (CSR, signature algorithm and signature).
+		RawTBSCertificateRequest: x509req.RawTBSCertificateRequest, // Certificate request info part of raw ASN.1 DER content.
+		RawSubjectPublicKeyInfo:  x509req.RawSubjectPublicKeyInfo, // DER encoded SubjectPublicKeyInfo.
+		RawSubject:              x509req.RawSubject, // DER encoded Subject.
+	
+		Version:            x509req.Version,
+		Signature:          x509req.Signature,
+		SignatureAlgorithm: sm2.SignatureAlgorithm(x509req.SignatureAlgorithm),
+	
+		PublicKeyAlgorithm: sm2.PublicKeyAlgorithm(x509req.PublicKeyAlgorithm),
+		PublicKey:         x509req.PublicKey,
+	
+		Subject: x509req.Subject,
+	
+		// Attributes is the dried husk of a bug and shouldn't be used.
+		Attributes: x509req.Attributes,
+	
+		// Extensions contains raw X.509 extensions. When parsing CSRs, this
+		// can be used to extract extensions that are not parsed by this
+		// package.
+		Extensions: x509req.Extensions,
+	
+		// ExtraExtensions contains extensions to be copied, raw, into any
+		// marshaled CSR. Values override any extensions that would otherwise
+		// be produced based on the other fields but are overridden by any
+		// extensions specified in Attributes.
+		//
+		// The ExtraExtensions field is not populated when parsing CSRs, see
+		// Extensions.
+		ExtraExtensions: x509req.ExtraExtensions,
+	
+		// Subject Alternate Name values.
+		DNSNames:       x509req.DNSNames,
+		EmailAddresses: x509req.EmailAddresses,
+		IPAddresses:    x509req.IPAddresses,
 	}
-
-	// SetBytes interprets buf as the bytes of a big-endian
-	// unsigned integer. The leading byte should be masked
-	// off to ensure it isn't negative.
-	serialNumber[0] &= 0x7F
-
-	template.SerialNumber = new(big.Int).SetBytes(serialNumber)
+	return sm2req
 }
 
 
@@ -51,11 +115,10 @@ func ParseX509Certificate2Sm2 (x509Cert *x509.Certificate) *sm2.Certificate{
 		RawIssuer:	x509Cert.RawIssuer,
 
 		Signature:	x509Cert.Signature,
-		// SignatureAlgorithm:	{x509Cert.SignatureAlgorithm},
+		SignatureAlgorithm:	sm2.SignatureAlgorithm(x509Cert.SignatureAlgorithm),
 		
 		
-
-		//PublicKeyAlgorithm:	x509Cert.PublicKeyAlgorithm,
+		PublicKeyAlgorithm:	sm2.PublicKeyAlgorithm(x509Cert.PublicKeyAlgorithm),
 		PublicKey:	x509Cert.PublicKey,
 		
 		Version:	x509Cert.Version,
@@ -64,7 +127,7 @@ func ParseX509Certificate2Sm2 (x509Cert *x509.Certificate) *sm2.Certificate{
 		Subject:	x509Cert.Subject,
 		NotBefore:	x509Cert.NotBefore,
 		NotAfter:	x509Cert.NotAfter,
-		// KeyUsage:	x509.KeyUsage{},
+		KeyUsage:	sm2.KeyUsage(x509Cert.KeyUsage),
 
 		Extensions:	x509Cert.Extensions,
 
@@ -72,7 +135,7 @@ func ParseX509Certificate2Sm2 (x509Cert *x509.Certificate) *sm2.Certificate{
 
 		UnhandledCriticalExtensions:	x509Cert.UnhandledCriticalExtensions,
 
-		// ExtKeyUsage:	x509Cert.ExtKeyUsage,
+		//ExtKeyUsage:	[]x509.ExtKeyUsage(x509Cert.ExtKeyUsage) ,
 		UnknownExtKeyUsage:	x509Cert.UnknownExtKeyUsage,
 
 		BasicConstraintsValid:	x509Cert.BasicConstraintsValid,
@@ -105,5 +168,26 @@ func ParseX509Certificate2Sm2 (x509Cert *x509.Certificate) *sm2.Certificate{
 
 		PolicyIdentifiers:	x509Cert.PolicyIdentifiers,
 	}
+	for _, val := range x509Cert.ExtKeyUsage{
+		sm2cert.ExtKeyUsage = append(sm2cert.ExtKeyUsage, sm2.ExtKeyUsage(val))
+	}
+
 	return sm2cert
+}
+
+
+
+//随机生成序列号
+func getRandBigInt() *big.Int{
+	serialNumber := make([]byte, 20)
+	_, err := io.ReadFull(rand.Reader, serialNumber)
+	if err != nil {
+		//return nil, cferr.Wrap(cferr.CertificateError, cferr.Unknown, err)
+	}
+	// SetBytes interprets buf as the bytes of a big-endian
+	// unsigned integer. The leading byte should be masked
+	// off to ensure it isn't negative.
+	serialNumber[0] &= 0x7F
+	//template.SerialNumber = new(big.Int).SetBytes(serialNumber)
+	return new(big.Int).SetBytes(serialNumber)
 }

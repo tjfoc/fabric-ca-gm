@@ -17,9 +17,6 @@ limitations under the License.
 package lib
 
 import (
-	"math/big"
-	"github.com/hyperledger/fabric/bccsp/gm/sm2"
-	"github.com/hyperledger/fabric/bccsp/gm"
 	"crypto/dsa"
 	"crypto/ecdsa"
 	"crypto/rsa"
@@ -132,30 +129,38 @@ func initCA(ca *CA, homeDir string, config *CAConfig, server *Server, renew bool
 func (ca *CA) init(renew bool) (err error) {
 	log.Debugf("Init CA with home %s and config %+v", ca.HomeDir, *ca.Config)
 	// Initialize the config, setting defaults, etc
+
+	SetProviderName(ca.Config.CSP.ProviderName)
 	err = ca.initConfig()
 	if err != nil {
 		return err
 	}
+	log.Infof("xxx xxxxxxxxxxxxx ca.go InitBCCSP")
 	// Initialize the crypto layer (BCCSP) for this CA
 	ca.csp, err = util.InitBCCSP(&ca.Config.CSP, "", ca.HomeDir)
 	if err != nil {
 		return err
 	}
+
+	log.Infof("xxx xxxxxxxxxxxxx ca.go initKeyMaterial,renew=%t",renew)
 	// Initialize key materials
 	err = ca.initKeyMaterial(renew)
 	if err != nil {
 		return err
 	}
+	log.Infof("xxx xxxxxxxxxxxxx ca.go initDB")
 	// Initialize the database
 	err = ca.initDB()
 	if err != nil {
 		return err
 	}
+	log.Infof("xxx xxxxxxxxxxxxx ca.go initEnrollmentSigner")
 	// Initialize the enrollment signer
 	err = ca.initEnrollmentSigner()
 	if err != nil {
 		return err
 	}
+	log.Infof("xxx xxxxxxxxxxxxx ca.go TCert handling")
 	// Initialize TCert handling
 	keyfile := ca.Config.CA.Keyfile
 	certfile := ca.Config.CA.Certfile
@@ -164,6 +169,7 @@ func (ca *CA) init(renew bool) (err error) {
 		return err
 	}
 	// FIXME: The root prekey must be stored persistently in DB and retrieved here if not found
+	log.Infof("xxx xxxxxxxxxxxxx ca.go genRootKey and NewKeyTree")
 	rootKey, err := genRootKey(ca.csp)
 	if err != nil {
 		return err
@@ -192,6 +198,10 @@ func (ca *CA) initKeyMaterial(renew bool) error {
 		// If they both exist, the CA was already initialized
 		keyFileExists := util.FileExists(keyFile)
 		certFileExists := util.FileExists(certFile)
+
+		log.Infof("xxxx keyFileExists [%s] exist? [%v]",keyFile,keyFileExists)
+		log.Infof("xxxx certFileExists [%s] exist? [%v]",certFile,certFileExists)
+
 		if keyFileExists && certFileExists {
 			log.Info("The CA key and certificate files already exist")
 			log.Infof("Key file location: %s", keyFile)
@@ -231,6 +241,7 @@ func (ca *CA) initKeyMaterial(renew bool) error {
 		}
 	}
 
+	log.Info("xxxx getCACert and store ca cert")
 	// Get the CA cert
 	cert, err := ca.getCACert()
 	if err != nil {
@@ -317,12 +328,10 @@ func (ca *CA) getCACert() (cert []byte, err error) {
 			csr.CA.Expiry = defaultRootCACertificateExpiration
 		}
 
-		log.Infof("xxxxx xxxx ca %s",ca.Config.CSP.ProviderName)
 		KeyRequest := cfcsr.NewBasicKeyRequest()
-		if "GM" == ca.Config.CSP.ProviderName {
+		if IsGMConfig() {
 			KeyRequest = cfcsr.NewGMKeyRequest()
 		}
-
 		req := cfcsr.CertificateRequest{
 			CN:    csr.CN,
 			Names: csr.Names,
@@ -339,24 +348,9 @@ func (ca *CA) getCACert() (cert []byte, err error) {
 			return nil, err
 		}
 		// Call CFSSL to initialize the CA
-		switch cspSigner.Public().(type) {
-		case *sm2.PublicKey:
-			log.Info("xxxx create GM CreateCertificate")
-			template := &sm2.Certificate{
-				SerialNumber: big.NewInt(12),
-				// Subject:            csrv.Subject,
-				// PublicKeyAlgorithm: csrv.PublicKeyAlgorithm,
-				// PublicKey:          csrv.PublicKey,
-				// SignatureAlgorithm: s.SigAlgo(),
-				// DNSNames:           csrv.DNSNames,
-				// IPAddresses:        csrv.IPAddresses,
-				// EmailAddresses:     csrv.EmailAddresses,
-			}
-			// rand.Read(&template.SerialNumber)
-
-			cert ,err = gm.CreateCertificateToMem(template,template,key)
-		default:
-			log.Info("xxxx initca.NewFromSigner ")
+		if IsGMConfig() {
+			cert ,err = createGmSm2Cert(key, &req,cspSigner)
+		}else{
 			cert, _, err = initca.NewFromSigner(&req, cspSigner)
 		}
 		if err != nil {
@@ -626,7 +620,6 @@ func (ca *CA) initEnrollmentSigner() (err error) {
 
 	ca.enrollSigner, err = util.BccspBackedSigner(c.CA.Certfile, c.CA.Keyfile, policy, ca.csp)
 
-	log.Infof("xxx end ca.go  util.BccspBackedSigner,error: %s",err)
 	if err != nil {
 		return err
 	}
