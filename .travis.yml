@@ -6,7 +6,7 @@ services:
  - docker
  
 install:
-  - cd $GOPATH/src/github.com/tjfoc/fabric-ca
+  - cd $GOPATH/src/github.com/tjfoc/fabric-ca-gm
   - chmod -R 777 *
   - make lint
   - make format
