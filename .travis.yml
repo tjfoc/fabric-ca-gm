@@ -1,0 +1,35 @@
+sudo: required
+language: go
+go:
+ - 1.8.3
+services:
+ - docker
+ 
+install:
+  - cd $GOPATH/src/github.com/tjfoc/fabric-ca-gm
+  - chmod -R 777 *
+  #- make format
+  #- make imports
+  #- make rename
+  #- make docker
+  - cd ..
+  - cd ..
+  - mv tjfoc hyperledger
+  - cd $GOPATH/src/github.com/hyperledger
+  - mv fabric-ca-gm fabric-ca
+  - cd $GOPATH/src/github.com/hyperledger/fabric-ca/cmd/fabric-ca-client
+  - go install
+  - cd $GOPATH/src/github.com/hyperledger/fabric-ca/cmd/fabric-ca-server
+  - go install
+ 
+notifications:
+  email:
+    recipients:
+      - zhiqiang@tj-fintech.com
+      - yanwenze@tj-fintech.com
+      - maoxiuze@tj-fintech.com
+      - yewei@tj-fintech.com
+      
+    on_success: never # default: change
+    on_failure: always # default: always
+  
