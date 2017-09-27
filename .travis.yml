@@ -1,13 +1,8 @@
-
-# Copyright IBM Corp. All Rights Reserved.
-#
-# SPDX-License-Identifier: Apache-2.0
-#
-
+sudo: false
 language: go
 go:
  - 1.8.3
-sudo: required
+
 
  install:
  - cd $GOPATH/src/github.com/hyperledger/fabric-ca/cmd/fabric-ca-client
@@ -16,12 +11,6 @@ sudo: required
  -cd $GOPATH/src/github.com/hyperledger/fabric-ca/cmd/fabric-ca-server
  -go install
  
- #script:
- after_failure:
- 
- -|
-  echo "Error!"
-  
  notifications:
   email:
     recipients:
