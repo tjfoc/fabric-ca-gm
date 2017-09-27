@@ -8,9 +8,7 @@ language: go
 go:
  - 1.8.3
 sudo: required
-services:
- - docke
- 
+
  install:
  - cd $GOPATH/src/github.com/hyperledger/fabric-ca/cmd/fabric-ca-client
  - go install
@@ -18,14 +16,13 @@ services:
  -cd $GOPATH/src/github.com/hyperledger/fabric-ca/cmd/fabric-ca-server
  -go install
  
- script:
- 
+ #script:
  after_failure:
  
  -|
   echo "Error!"
   
-  notifications:
+ notifications:
   email:
     recipients:
       - zhiqiang@tj-fintech.com
