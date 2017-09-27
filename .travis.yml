@@ -4,20 +4,20 @@ go:
  - 1.8.3
 
 
- install:
+install:
  - cd $GOPATH/src/github.com/hyperledger/fabric-ca/cmd/fabric-ca-client
  - go install
  
  -cd $GOPATH/src/github.com/hyperledger/fabric-ca/cmd/fabric-ca-server
  -go install
  
- notifications:
-  email:
-    recipients:
-      - zhiqiang@tj-fintech.com
-      - yanwenze@tj-fintech.com
-      - maoxiuze@tj-fintech.com
-      - yewei@tj-fintech.com
+notifications:
+ email:
+   recipients:
+     - zhiqiang@tj-fintech.com
+     - yanwenze@tj-fintech.com
+     - maoxiuze@tj-fintech.com
+     - yewei@tj-fintech.com
       
     on_success: never # default: change
     on_failure: never # default: always
