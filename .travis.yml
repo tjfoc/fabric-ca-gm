@@ -4,10 +4,10 @@ go:
  - 1.8.3
 
 install:
- - cd $GOPATH/src/github.com/hyperledger/fabric-ca/cmd/fabric-ca-client
- - go install
- - cd $GOPATH/src/github.com/hyperledger/fabric-ca/cmd/fabric-ca-server
- - go install
+  - cd $GOPATH/src/github.com/hyperledger/fabric-ca/cmd/fabric-ca-client
+  - go install
+  - cd $GOPATH/src/github.com/hyperledger/fabric-ca/cmd/fabric-ca-server
+  - go install
  
 notifications:
  email:
