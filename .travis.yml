@@ -12,7 +12,7 @@ install:
   #- make imports
   #- make rename
   #- make docker
-  - cd $OPATH/src/github.com/tjfoc
+  - cd ..
   - mv tjfoc hyperledger
   - cd $GOPATH/src/github.com/hyperledger
   - mv fabric-ca-gm fabric-ca
