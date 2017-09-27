@@ -10,9 +10,9 @@ install:
   - chmod -R 777 *
   #- make rename
   #- make docker
-  - cd $GOPATH/src/github.com/hyperledger/fabric-ca/cmd/fabric-ca-client
+  - cd $GOPATH/src/github.com/tjfoc/fabric-ca-gm/cmd/fabric-ca-client
   - go install
-  - cd $GOPATH/src/github.com/hyperledger/fabric-ca/cmd/fabric-ca-server
+  - cd $GOPATH/src/github.com/tjfoc/fabric-ca-gm/cmd/fabric-ca-server
   - go install
  
 notifications:
