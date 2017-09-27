@@ -1,1 +1,38 @@
 
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+language: go
+go:
+ - 1.8.3
+sudo: required
+services:
+ - docke
+ 
+ install:
+ - cd $GOPATH/src/github.com/hyperledger/fabric-ca/cmd/fabric-ca-client
+ - go install
+ 
+ -cd $GOPATH/src/github.com/hyperledger/fabric-ca/cmd/fabric-ca-server
+ -go install
+ 
+ script:
+ 
+ after_failure:
+ 
+ -|
+  echo "Error!"
+  
+  notifications:
+  email:
+    recipients:
+      - zhiqiang@tj-fintech.com
+      - yanwenze@tj-fintech.com
+      - maoxiuze@tj-fintech.com
+      - yewei@tj-fintech.com
+      
+    on_success: never # default: change
+    on_failure: never # default: always
+  
