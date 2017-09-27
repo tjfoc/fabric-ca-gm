@@ -1,6 +1,6 @@
 Fabric CA GM 
 
-[![Build Status](https://travis-ci.org/tjfoc/fabric-ca-gm.svg?branch=develop)](https://travis-ci.org/tjfoc/fabric-ca-gm)
+[![Build Status](https://travis-ci.org/tjfoc/fabric-ca-gm.svg?branch=master)](https://travis-ci.org/tjfoc/fabric-ca-gm)
 
 Copyright Suzhou Tongji Fintech Research Institute 2017 All Rights Reserved. Licensed under the Apache License, Version 2.0 (the "License");
 
