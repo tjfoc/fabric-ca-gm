@@ -8,8 +8,8 @@ services:
 install:
   - cd $GOPATH/src/github.com/tjfoc/fabric-ca-gm
   - chmod -R 777 *
-  - make format
-  - make imports
+  #- make format
+  #- make imports
   #- make rename
   #- make docker
   - cd $OPATH/src/github.com/tjfoc
