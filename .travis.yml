@@ -8,14 +8,17 @@ services:
 install:
   - cd $GOPATH/src/github.com/tjfoc/fabric-ca-gm
   - chmod -R 777 *
-  - make lint
   - make format
   - make imports
   #- make rename
   #- make docker
-  - cd $GOPATH/src/github.com/tjfoc/fabric-ca-gm/cmd/fabric-ca-client
+  - cd $OPATH/src/github.com/tjfoc
+  - mv tjfoc hyperledger
+  - cd $GOPATH/src/github.com/hyperledger
+  - mv fabric-ca-gm fabric-ca
+  - cd $GOPATH/src/github.com/hyperledger/fabric-ca/cmd/fabric-ca-client
   - go install
-  - cd $GOPATH/src/github.com/tjfoc/fabric-ca-gm/cmd/fabric-ca-server
+  - cd $GOPATH/src/github.com/hyperledger/fabric-ca/cmd/fabric-ca-server
   - go install
  
 notifications:
