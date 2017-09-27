@@ -13,6 +13,7 @@ install:
   #- make rename
   #- make docker
   - cd ..
+  - cd ..
   - mv tjfoc hyperledger
   - cd $GOPATH/src/github.com/hyperledger
   - mv fabric-ca-gm fabric-ca
