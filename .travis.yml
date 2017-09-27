@@ -1,9 +1,13 @@
-sudo: false
+sudo: required
 language: go
 go:
  - 1.8.3
-
+services:
+ - docker
+ 
 install:
+  - make rename
+  - make docker
   - cd $GOPATH/src/github.com/tjfoc/fabric-ca-gm/cmd/fabric-ca-client
   - go install
   - cd $GOPATH/src/github.com/tjfoc/fabric-ca-gm/cmd/fabric-ca-server
