@@ -12,6 +12,7 @@ install:
   #- make imports
   #- make rename
   #- make docker
+  - go get github.com/tjfoc/gmsm
   - rm -rf bin
   - mkdir bin
   - make
