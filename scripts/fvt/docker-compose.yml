@@ -11,4 +11,4 @@ services:
     build: .
     command: [make, fvt-tests]
     volumes:
-      - ${GOPATH}/src/github.com/hyperledger/fabric-ca:/opt/gopath/src/github.com/hyperledger/fabric-ca
+      - ${GOPATH}/src/github.com/tjfoc/gmca:/opt/gopath/src/github.com/tjfoc/gmca

@@ -26,7 +26,7 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/hyperledger/fabric-ca/util"
+	"github.com/tjfoc/gmca/util"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 )

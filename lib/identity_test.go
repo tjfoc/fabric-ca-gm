@@ -20,7 +20,7 @@ import (
 	"io/ioutil"
 	"testing"
 
-	"github.com/hyperledger/fabric-ca/util"
+	"github.com/tjfoc/gmca/util"
 	"github.com/hyperledger/fabric/bccsp/factory"
 )
 

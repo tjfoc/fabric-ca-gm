@@ -24,9 +24,9 @@ import (
 	"path"
 	"testing"
 
-	"github.com/hyperledger/fabric-ca/api"
-	. "github.com/hyperledger/fabric-ca/lib"
-	"github.com/hyperledger/fabric-ca/util"
+	"github.com/tjfoc/gmca/api"
+	. "github.com/tjfoc/gmca/lib"
+	"github.com/tjfoc/gmca/util"
 	"github.com/stretchr/testify/assert"
 )
 

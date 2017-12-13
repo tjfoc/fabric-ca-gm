@@ -32,7 +32,7 @@ import (
 	"strconv"
 
 	"github.com/cloudflare/cfssl/log"
-	"github.com/hyperledger/fabric-ca/util"
+	"github.com/tjfoc/gmca/util"
 	"github.com/hyperledger/fabric/bccsp"
 	cspsigner "github.com/hyperledger/fabric/bccsp/signer"
 )

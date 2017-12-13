@@ -14,23 +14,27 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package lib_test
+package lib
 
 import (
+	"fmt"
 	"os"
 	"strings"
 	"testing"
+	//"fmt"
 
-	"github.com/hyperledger/fabric-ca/api"
-	. "github.com/hyperledger/fabric-ca/lib"
-	"github.com/hyperledger/fabric-ca/lib/dbutil"
-	"github.com/hyperledger/fabric-ca/lib/spi"
 	"github.com/jmoiron/sqlx"
+	"github.com/tjfoc/fabric-ca-gm/api"
+	. "github.com/tjfoc/fabric-ca-gm/lib"
+	"github.com/tjfoc/fabric-ca-gm/lib/dbutil"
+	"github.com/tjfoc/fabric-ca-gm/lib/spi"
+	//"github.com/cloudflare/cfssl/log"
 	_ "github.com/mattn/go-sqlite3"
 )
 
 const (
-	dbPath = "/tmp/dbtesting"
+	dbPath = "/home/zq/gopath/src/github.com/tjfoc/fabric-ca-gm/bin"
+	//dbPath = "/home/zq/gopath/src/github.com/tjfoc/gmca/bin"
 
 	sqliteTruncateTables = `
 DELETE FROM Users;
@@ -48,15 +52,17 @@ func (ta *TestAccessor) Truncate() {
 }
 
 func TestSQLite(t *testing.T) {
+	t.Log("Enter TestSQLite")
 	if _, err := os.Stat(dbPath); err != nil {
 		if os.IsNotExist(err) {
 			os.MkdirAll(dbPath, 0755)
 		}
-	} else {
-		os.RemoveAll(dbPath)
-		os.MkdirAll(dbPath, 0755)
-	}
-	dataSource := dbPath + "/fabric-ca.db"
+	} //else {
+	//os.RemoveAll(dbPath)
+	//os.MkdirAll(dbPath, 0755)
+	//}
+	dataSource := dbPath + "/fabric-ca-server.db"
+	t.Logf("dataSource=%s", dataSource)
 	db, _, err := dbutil.NewUserRegistrySQLLite3(dataSource)
 	if err != nil {
 		t.Error("Failed to open connection to DB")
@@ -69,7 +75,16 @@ func TestSQLite(t *testing.T) {
 		DB:       db,
 	}
 	testEverything(ta, t)
-	removeDatabase()
+	//removeDatabase()
+}
+
+func testGetAllInfoAndList(ta TestAccessor, t *testing.T) {
+	//t.Log("Enter testGetAllInfoAndList")
+	_, err := ta.Accessor.GetAllInfoAndList()
+	if err != nil {
+		t.Log("GetAllInfoAndList err", err)
+	}
+	//t.Log("Exit TestListAll")
 }
 
 // Truncate truncates the DB
@@ -87,16 +102,14 @@ func Truncate(db *sqlx.DB) {
 	}
 }
 
-func removeDatabase() {
-	os.RemoveAll(dbPath)
-}
+//func removeDatabase() {
+//	os.RemoveAll(dbPath)
+//}
 
 func testEverything(ta TestAccessor, t *testing.T) {
 	testInsertAndGetUser(ta, t)
-	testDeleteUser(ta, t)
-	testUpdateUser(ta, t)
+	testGetAllInfoAndList(ta, t)
 	testInsertAndGetAffiliation(ta, t)
-	testDeleteAffiliation(ta, t)
 }
 
 func testInsertAndGetUser(ta TestAccessor, t *testing.T) {
@@ -104,28 +117,36 @@ func testInsertAndGetUser(ta TestAccessor, t *testing.T) {
 	ta.Truncate()
 
 	insert := spi.UserInfo{
-		Name:       "testId",
-		Pass:       "123456",
-		Type:       "client",
-		Attributes: []api.Attribute{},
+		//Name:           "test",
+		Pass: "123456",
+		Type: "user",
+		//Attributes: api.Attribute{
+		//	name:  "hf.Registrar.Roles",
+		//	value: "true",
+		//},
+		Attributes:     []api.Attribute{{Name: "hf.Registrar.Roles", Value: "client,user,peer"}, {Name: "hf.IntermediateCA", Value: "true"}},
+		MaxEnrollments: -1,
 	}
 
-	err := ta.Accessor.InsertUser(insert)
-	if err != nil {
-		t.Errorf("Error occured during insert query of ID: %s, error: %s", insert.Name, err)
+	for i := 0; i < 5; i++ {
+		insert.Name = fmt.Sprintf("test%d", i)
+		err := ta.Accessor.InsertUser(insert)
+		if err != nil {
+			t.Errorf("Error occured during insert query of ID: %s, error: %s", insert.Name, err)
+		}
 	}
 
-	user, err := ta.Accessor.GetUser(insert.Name, nil)
+	/*user, err := ta.Accessor.GetUser(insert.Name, nil)
 	if err != nil {
 		t.Errorf("Error occured during querying of id: %s, error: %s", insert.Name, err)
 	}
 
 	if user.GetName() != insert.Name {
 		t.Error("Incorrect ID retrieved")
-	}
+	}*/
 }
 
-func testDeleteUser(ta TestAccessor, t *testing.T) {
+/*func testDeleteUser(ta TestAccessor, t *testing.T) {
 	t.Log("TestDeleteUser")
 	ta.Truncate()
 
@@ -150,9 +171,9 @@ func testDeleteUser(ta TestAccessor, t *testing.T) {
 	if err == nil {
 		t.Error("Should have errored, and not returned any results")
 	}
-}
+}*/
 
-func testUpdateUser(ta TestAccessor, t *testing.T) {
+/*func testUpdateUser(ta TestAccessor, t *testing.T) {
 	t.Log("TestUpdateUser")
 	ta.Truncate()
 
@@ -186,28 +207,28 @@ func testUpdateUser(ta TestAccessor, t *testing.T) {
 		t.Error("Failed to login in user: ", err)
 	}
 
-}
+}*/
 
 func testInsertAndGetAffiliation(ta TestAccessor, t *testing.T) {
-	ta.Truncate()
+	//ta.Truncate()
 
-	err := ta.Accessor.InsertAffiliation("Bank1", "Banks")
+	err := ta.Accessor.InsertAffiliation("org1.department1", "abc")
 	if err != nil {
 		t.Errorf("Error occured during insert query of group: %s, error: %s", "Bank1", err)
 	}
 
-	group, err := ta.Accessor.GetAffiliation("Bank1")
+	group, err := ta.Accessor.GetAffiliation("org1.department1")
 	if err != nil {
 		t.Errorf("Error occured during querying of name: %s, error: %s", "Bank1", err)
 	}
 
-	if group.GetName() != "Bank1" {
+	if group.GetName() != "org1.department1" {
 		t.Error("Failed to query")
 	}
 
 }
 
-func testDeleteAffiliation(ta TestAccessor, t *testing.T) {
+/*func testDeleteAffiliation(ta TestAccessor, t *testing.T) {
 	ta.Truncate()
 
 	err := ta.Accessor.InsertAffiliation("Banks.Bank2", "Banks")
@@ -224,4 +245,4 @@ func testDeleteAffiliation(ta TestAccessor, t *testing.T) {
 	if err == nil {
 		t.Error("Should have errored, and not returned any results")
 	}
-}
+}*/

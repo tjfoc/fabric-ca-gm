@@ -16,7 +16,7 @@ limitations under the License.
 
 package lib
 
-import "github.com/hyperledger/fabric-ca/lib/tls"
+import "github.com/tjfoc/gmca/lib/tls"
 
 const (
 	// DefaultServerPort is the default listening port for the fabric-ca server

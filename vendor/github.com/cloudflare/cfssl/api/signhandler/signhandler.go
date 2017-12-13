@@ -112,7 +112,6 @@ func jsonReqToTrue(js jsonSignRequest) signer.SignRequest {
 // provided, subject information from the "subject" parameter will be used
 // in place of the subject information from the CSR.
 func (h *Handler) Handle(w http.ResponseWriter, r *http.Request) error {
-	log.Info("signature request received")
 
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
@@ -164,7 +163,6 @@ func (h *Handler) Handle(w http.ResponseWriter, r *http.Request) error {
 
 		result["bundle"] = bundle
 	}
-	log.Info("wrote response")
 	return api.SendResponse(w, result)
 }
 
@@ -217,7 +215,6 @@ func (h *AuthHandler) SetBundler(caBundleFile, intBundleFile string) (err error)
 
 // Handle receives the incoming request, validates it, and processes it.
 func (h *AuthHandler) Handle(w http.ResponseWriter, r *http.Request) error {
-	log.Info("signature request received")
 
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {

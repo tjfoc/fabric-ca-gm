@@ -6,7 +6,7 @@
 #
 
 RC=0
-FABRIC_CA="$GOPATH/src/github.com/hyperledger/fabric-ca"
+FABRIC_CA="$GOPATH/src/github.com/tjfoc/gmca"
 SCRIPTDIR="$FABRIC_CA/scripts/fvt"
 . $SCRIPTDIR/fabric-ca_utils
 fabric-ca-server init -b administrator:administratorpw -d &> /tmp/log.txt

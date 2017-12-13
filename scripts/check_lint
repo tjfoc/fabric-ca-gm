@@ -26,7 +26,7 @@ fi
 
 echo "Running lint ..."
 found=$(runlint)
-# found=`golint \`find . -name "*.go" | grep -v "./vendor"\` 2>&1`
+#found=`golint \`find . -name "*.go" | grep -v "./vendor"\` 2>&1`
 if [ "$found" != "" ]; then
    echo "YOU MUST FIX THE FOLLOWING LINT PROBLEMS:"
    echo "$found"

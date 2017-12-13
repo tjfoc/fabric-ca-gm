@@ -21,8 +21,8 @@ import (
 	"path/filepath"
 
 	"github.com/cloudflare/cfssl/log"
-	"github.com/hyperledger/fabric-ca/api"
-	"github.com/hyperledger/fabric-ca/lib"
+	"github.com/tjfoc/gmca/api"
+	"github.com/tjfoc/gmca/lib"
 	"github.com/spf13/cobra"
 )
 

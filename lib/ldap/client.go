@@ -25,9 +25,9 @@ import (
 	"strings"
 
 	"github.com/cloudflare/cfssl/log"
-	"github.com/hyperledger/fabric-ca/lib/spi"
-	ctls "github.com/hyperledger/fabric-ca/lib/tls"
 	"github.com/hyperledger/fabric/bccsp"
+	"github.com/tjfoc/gmca/lib/spi"
+	ctls "github.com/tjfoc/gmca/lib/tls"
 	ldap "gopkg.in/ldap.v2"
 )
 
@@ -126,12 +126,10 @@ type Client struct {
 // GetUser returns a user object for username and attribute values
 // for the requested attribute names
 func (lc *Client) GetUser(username string, attrNames []string) (spi.User, error) {
-
 	var sresp *ldap.SearchResult
 	var err error
 
 	log.Debugf("Getting user '%s'", username)
-
 	// Search for the given username
 	sreq := ldap.NewSearchRequest(
 		lc.Base, ldap.ScopeWholeSubtree,
@@ -160,11 +158,13 @@ func (lc *Client) GetUser(username string, attrNames []string) (spi.User, error)
 		log.Debugf("Searching for user '%s' using new connection", username)
 		conn, err = lc.newConnection()
 		if err != nil {
+			log.Infof("newConnetction err = %s", err)
 			return nil, err
 		}
 		sresp, err = conn.Search(sreq)
 		if err != nil {
 			conn.Close()
+			log.Infof("LDAP search failure: %s; search request: %+v", err, sreq)
 			return nil, fmt.Errorf("LDAP search failure: %s; search request: %+v", err, sreq)
 		}
 		// Cache the connection
@@ -173,9 +173,11 @@ func (lc *Client) GetUser(username string, attrNames []string) (spi.User, error)
 
 	// Make sure there was exactly one match found
 	if len(sresp.Entries) < 1 {
+		log.Infof("User '%s' does not exist in LDAP directory", username)
 		return nil, fmt.Errorf("User '%s' does not exist in LDAP directory", username)
 	}
 	if len(sresp.Entries) > 1 {
+		log.Infof("Multiple users with name '%s' exist in LDAP directory", username)
 		return nil, fmt.Errorf("Multiple users with name '%s' exist in LDAP directory", username)
 	}
 
@@ -198,7 +200,7 @@ func (lc *Client) GetUser(username string, attrNames []string) (spi.User, error)
 		attrs:  attrs,
 		client: lc,
 	}
-
+	log.Infof("Successfully retrieved user '%s', DN: %s", username, DN)
 	log.Debug("Successfully retrieved user '%s', DN: %s", username, DN)
 
 	return user, nil

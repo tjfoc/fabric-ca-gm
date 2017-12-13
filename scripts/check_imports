@@ -10,7 +10,7 @@ if [ ! -f $GOPATH/bin/goimports ]; then
 fi
 
 echo "Checking imports ..."
-found=`goimports -l \`find . -name "*.go" |grep -v "./vendor"\` 2>&1`
+#found=`goimports -l \`find . -name "*.go" |grep -v "./vendor"\` 2>&1`
 if [ "$found" != "" ]; then
    echo "The following files have import problems:"
    echo "$found"

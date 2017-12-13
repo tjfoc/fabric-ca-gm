@@ -33,11 +33,11 @@ import (
 	"time"
 
 	"github.com/cloudflare/cfssl/csr"
-	"github.com/hyperledger/fabric-ca/api"
-	. "github.com/hyperledger/fabric-ca/lib"
-	"github.com/hyperledger/fabric-ca/lib/dbutil"
-	libtls "github.com/hyperledger/fabric-ca/lib/tls"
-	"github.com/hyperledger/fabric-ca/util"
+	"github.com/tjfoc/gmca/api"
+	. "github.com/tjfoc/gmca/lib"
+	"github.com/tjfoc/gmca/lib/dbutil"
+	libtls "github.com/tjfoc/gmca/lib/tls"
+	"github.com/tjfoc/gmca/util"
 	"github.com/hyperledger/fabric/bccsp/factory"
 	"github.com/stretchr/testify/assert"
 )

@@ -14,6 +14,7 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
+Modified create gmfactory by Tongji Fintech Research Institute on 2017-09-10.
 */
 package factory
 
@@ -49,9 +50,12 @@ func setFactories(config *FactoryOpts) error {
 		config = GetDefaultOpts()
 	}
 
-	if config.ProviderName == "" {
-		config.ProviderName = "SW"
-	}
+	// if config.ProviderName == "" {
+	// 	config.ProviderName = "GM"
+	// }
+
+	//暂时由GM替代bccsp
+	config.ProviderName = "GM"
 
 	if config.SwOpts == nil {
 		config.SwOpts = GetDefaultOpts().SwOpts
@@ -65,7 +69,7 @@ func setFactories(config *FactoryOpts) error {
 		var f BCCSPFactory
 		if strings.ToUpper(config.ProviderName) == "GM" {
 			f = &GMFactory{}
-		}else{
+		} else {
 			f = &SWFactory{}
 		}
 		err := initBCCSP(f, config)

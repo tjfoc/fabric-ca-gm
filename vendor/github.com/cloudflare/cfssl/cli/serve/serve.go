@@ -258,7 +258,6 @@ func registerHandlers() {
 			}
 		}
 	}
-	log.Info("Handler set up complete.")
 }
 
 // serverMain is the command line entry point to the API server. It sets up a

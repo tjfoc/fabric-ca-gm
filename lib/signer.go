@@ -18,7 +18,7 @@ package lib
 
 import (
 	"github.com/cloudflare/cfssl/log"
-	"github.com/hyperledger/fabric-ca/api"
+	"github.com/tjfoc/gmca/api"
 	"github.com/hyperledger/fabric/bccsp"
 )
 

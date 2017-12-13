@@ -5,7 +5,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 OLD=$GOPATH/src/github.com/hyperledger/fabric-cop
-NEW=$GOPATH/src/github.com/hyperledger/fabric-ca
+NEW=$GOPATH/src/github.com/tjfoc/gmca
 if [ -d "$NEW" ]; then
    echo "$NEW already exists"
 elif [ -d "$OLD" ]; then

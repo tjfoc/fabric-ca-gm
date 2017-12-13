@@ -20,8 +20,8 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/hyperledger/fabric-ca/lib"
-	. "github.com/hyperledger/fabric-ca/util"
+	"github.com/tjfoc/gmca/lib"
+	. "github.com/tjfoc/gmca/util"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"

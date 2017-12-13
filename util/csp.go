@@ -11,13 +11,12 @@ Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
-limitations under the License.
-*/
+limitations under the License.  */
 
 package util
 
 import (
-	"github.com/hyperledger/fabric/bccsp/gm/sm2"
+	//"github.com/hyperledger/fabric/bccsp/gm/sm2"
 	"crypto"
 	"crypto/ecdsa"
 	"crypto/rsa"
@@ -31,6 +30,8 @@ import (
 	"strings"
 	_ "time" // for ocspSignerFromConfig
 
+	"encoding/hex"
+
 	_ "github.com/cloudflare/cfssl/cli" // for ocspSignerFromConfig
 	"github.com/cloudflare/cfssl/config"
 	"github.com/cloudflare/cfssl/csr"
@@ -41,9 +42,10 @@ import (
 	"github.com/cloudflare/cfssl/signer/local"
 	"github.com/hyperledger/fabric/bccsp"
 	"github.com/hyperledger/fabric/bccsp/factory"
+	"github.com/hyperledger/fabric/bccsp/gm"
 	cspsigner "github.com/hyperledger/fabric/bccsp/signer"
 	"github.com/hyperledger/fabric/bccsp/utils"
-	"encoding/hex"
+	"github.com/tjfoc/gmsm/sm2"
 )
 
 // GetDefaultBCCSP returns the default BCCSP
@@ -53,6 +55,7 @@ func GetDefaultBCCSP() bccsp.BCCSP {
 
 // InitBCCSP initializes BCCSP
 func InitBCCSP(optsPtr **factory.FactoryOpts, mspDir, homeDir string) (bccsp.BCCSP, error) {
+	log.Info("------------enter InitBCCSP!")
 	err := ConfigureBCCSP(optsPtr, mspDir, homeDir)
 	if err != nil {
 		return nil, err
@@ -75,9 +78,11 @@ func ConfigureBCCSP(optsPtr **factory.FactoryOpts, mspDir, homeDir string) error
 	if opts == nil {
 		opts = &factory.FactoryOpts{}
 	}
-	log.Infof("xxx csp.go opts.ProviderName [%s]",opts.ProviderName)
+	//
+	//opts.ProviderName = "GM"
+	log.Infof("xxx csp.go opts.ProviderName [%s]", opts.ProviderName)
 	if opts.ProviderName == "" {
-		opts.ProviderName = "SW"
+		opts.ProviderName = "GM"
 	}
 	SetProviderName(opts.ProviderName)
 	if strings.ToUpper(opts.ProviderName) == "SW" {
@@ -85,7 +90,7 @@ func ConfigureBCCSP(optsPtr **factory.FactoryOpts, mspDir, homeDir string) error
 			opts.SwOpts = &factory.SwOpts{}
 		}
 		if opts.SwOpts.HashFamily == "" {
-			opts.SwOpts.HashFamily = "SHA2"
+			opts.SwOpts.HashFamily = "SHA"
 		}
 		if opts.SwOpts.SecLevel == 0 {
 			opts.SwOpts.SecLevel = 256
@@ -166,9 +171,9 @@ func makeFileNamesAbsolute(opts *factory.FactoryOpts, homeDir string) error {
 // BccspBackedSigner attempts to create a signer using csp bccsp.BCCSP. This csp could be SW (golang crypto)
 // PKCS11 or whatever BCCSP-conformant library is configured
 func BccspBackedSigner(caFile, keyFile string, policy *config.Signing, csp bccsp.BCCSP) (signer.Signer, error) {
-	log.Infof("xxxx in BccspBackedSigner,caFile:%s",caFile)
+	log.Infof("xxxx in BccspBackedSigner,caFile:%s", caFile)
 	_, cspSigner, parsedCa, err := GetSignerFromCertFile(caFile, csp)
-	log.Infof("xxx  end GetSignerFromCertFile error, %s",err)
+	log.Infof("xxx  end GetSignerFromCertFile error, %s", err)
 	if err != nil {
 		// Fallback: attempt to read out of keyFile and import
 		log.Debugf("No key found in BCCSP keystore, attempting fallback")
@@ -177,13 +182,13 @@ func BccspBackedSigner(caFile, keyFile string, policy *config.Signing, csp bccsp
 
 		log.Info("xxxx begin ImportBCCSPKeyFromPEM")
 		key, err = ImportBCCSPKeyFromPEM(keyFile, csp, false)
-		log.Infof("xxxx end ImportBCCSPKeyFromPEM,err %s",err)
+		log.Infof("xxxx end ImportBCCSPKeyFromPEM,err %s", err)
 		if err != nil {
 			return nil, fmt.Errorf("Could not find the private key in BCCSP keystore nor in keyfile %s: %s", keyFile, err)
 		}
 
 		signer, err = cspsigner.New(csp, key)
-		log.Infof("xxxx end cspsigner.New(),err %s",err)
+		log.Infof("xxxx end cspsigner.New(),err %s", err)
 		if err != nil {
 			return nil, fmt.Errorf("Failed initializing CryptoSigner: %s", err)
 		}
@@ -244,22 +249,24 @@ func GetSignerFromCert(cert *x509.Certificate, csp bccsp.BCCSP) (bccsp.Key, cryp
 		return nil, nil, fmt.Errorf("CSP was not initialized")
 	}
 
-	log.Info("xxxx begin csp.KeyImport")
-	switch  cert.PublicKey.(type){
+	log.Infof("xxxx begin csp.KeyImport,cert.PublicKey is %T   csp:%T", cert.PublicKey, csp)
+	switch cert.PublicKey.(type) {
 	case sm2.PublicKey:
 		log.Infof("xxxxx cert is sm2 puk")
 	default:
 		log.Infof("xxxxx cert is default puk")
 	}
 
+	sm2cert := gm.ParseX509Certificate2Sm2(cert)
+
 	// get the public key in the right format
-	certPubK, err := csp.KeyImport(cert, &bccsp.X509PublicKeyImportOpts{Temporary: true})
+	certPubK, err := csp.KeyImport(sm2cert, &bccsp.X509PublicKeyImportOpts{Temporary: true})
 	if err != nil {
 		return nil, nil, fmt.Errorf("Failed to import certificate's public key: %s", err.Error())
 	}
 
 	kname := hex.EncodeToString(certPubK.SKI())
-	log.Infof("xxxx begin csp.GetKey kname:%s",kname)
+	log.Infof("xxxx begin csp.GetKey kname:%s", kname)
 
 	// Get the key given the SKI value
 	privateKey, err := csp.GetKey(certPubK.SKI())
@@ -279,30 +286,56 @@ func GetSignerFromCert(cert *x509.Certificate, csp bccsp.BCCSP) (bccsp.Key, cryp
 
 // GetSignerFromCertFile load skiFile and load private key represented by ski and return bccsp signer that conforms to crypto.Signer
 func GetSignerFromCertFile(certFile string, csp bccsp.BCCSP) (bccsp.Key, crypto.Signer, *x509.Certificate, error) {
-	var parsedCa *x509.Certificate
-	var err error
-	if IsGMConfig() {
-		parsedSm2Ca, err := sm2.ReadCertificateFromPem(certFile)
-		if err != nil {
-			return nil, nil, nil, fmt.Errorf("Could not Read sm2 CertificateFromPem [%s]: %s", certFile, err.Error())
-		}
-		parsedCa = ParseSm2Certificate2X509(parsedSm2Ca)
-	}else{
-		// Load cert file
-		certBytes, err := ioutil.ReadFile(certFile)
-		if err != nil {
-			return nil, nil, nil, fmt.Errorf("Could not read certFile [%s]: %s", certFile, err.Error())
-		}
-		// Parse certificate
-		parsedCa, err = helpers.ParseCertificatePEM(certBytes)
-	}
-
+	certBytes, err := ioutil.ReadFile(certFile)
 	if err != nil {
 		return nil, nil, nil, err
 	}
-	// Get the signer from the cert
-	key, cspSigner, err := GetSignerFromCert(parsedCa, csp)
-	return key, cspSigner, parsedCa, err
+	cert, err := helpers.ParseCertificatePEM(certBytes)
+	if err != nil || cert == nil {
+		sm2Cert, err := sm2.ReadCertificateFromPem(certFile)
+		if err != nil {
+			return nil, nil, nil, err
+		}
+		cert = gm.ParseSm2Certificate2X509(sm2Cert)
+	}
+	key, cspSigner, err := GetSignerFromCert(cert, csp)
+	log.Infof("+++++++++++++KEY = %T", key)
+	return key, cspSigner, cert, err
+	/*
+		var parsedCa *x509.Certificate
+		var err error
+		if IsGMConfig() {
+			log.Info("---------------Enter ReadCeretificateFromPem")
+			parsedSm2Ca, err := sm2.ReadCertificateFromPem(certFile)
+
+			if err != nil {
+				return nil, nil, nil, fmt.Errorf("Could not Read sm2 CertificateFromPem [%s]: %s", certFile, err.Error())
+			}
+			log.Info("---------------Enter ParseSm2Certificate2X509")
+			parsedCa = ParseSm2Certificate2X509(parsedSm2Ca)
+		} else {
+			// Load cert file
+			log.Info("---------------Enter ReadFile")
+			certBytes, err := ioutil.ReadFile(certFile)
+			if err != nil {
+				return nil, nil, nil, fmt.Errorf("Could not read certFile [%s]: %s", certFile, err.Error())
+			}
+			// Parse certificate
+			log.Info("---------------Enter ParseCertificatePEM")
+			parsedCa, err = helpers.ParseCertificatePEM(certBytes)
+
+		}
+
+		if err != nil {
+			return nil, nil, nil, err
+		}
+		// Get the signer from the cert
+		log.Infof("---------------Enter GetSignerFromCert--parsedCa = %p", parsedCa)
+		key, cspSigner, err := GetSignerFromCert(parsedCa, csp)
+		log.Info("---------------Exit GetSignerFromCertFile")
+		//log.Info("")
+		return key, cspSigner, parsedCa, err
+	*/
 }
 
 // BCCSPKeyRequestGenerate generates keys through BCCSP

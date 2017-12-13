@@ -30,9 +30,11 @@ import (
 	cferr "github.com/cloudflare/cfssl/errors"
 	"github.com/cloudflare/cfssl/log"
 	"github.com/cloudflare/cfssl/signer"
-	"github.com/hyperledger/fabric-ca/api"
-	"github.com/hyperledger/fabric-ca/util"
-	"github.com/hyperledger/fabric/bccsp/gm/sm2"
+	//"github.com/hyperledger/fabric/bccsp/gm/sm2"
+
+	"github.com/tjfoc/gmca/api"
+	"github.com/tjfoc/gmca/util"
+	"github.com/tjfoc/gmsm/sm2"
 )
 
 const (
@@ -128,32 +130,33 @@ func (sh *signHandler) handle(w http.ResponseWriter, r *http.Request) error {
 	// Make any authorization checks needed, depending on the contents
 	// of the CSR (Certificate Signing Request)
 	enrollmentID := r.Header.Get(enrollmentIDHdrName)
-	log.Info("xxxxxxxxxxxx         enrollmentID [%s]",enrollmentID)
+	log.Info("xxxxxxxxxxxx         enrollmentID [%s]", enrollmentID)
 	err = sh.csrChecks(&req.SignRequest, enrollmentID, r)
 	if err != nil {
 		return err
 	}
-	log.Info("xxxxxxxxxxxx         222222222222222222222222222")
 
 	//Sign the certificate
-	var cert [] byte
-	if IsGMConfig(){
-		log.Info("xxx in gm sign")
-		cert, err = signCert(req.SignRequest,sh.server.caMap[caname])
-	}else{
-		cert, err = sh.server.caMap[caname].enrollSigner.Sign(req.SignRequest)
-	}
-	if err != nil {
-		return fmt.Errorf("Failed signing: %s", err)
-	}
-	log.Info("xxxxxxxxxxxx         33333333333333333333333333")
+	var cert []byte
+
+	//if IsGMConfig() {
+	cert, err = signCert(req.SignRequest, sh.server.caMap[caname])
+	//} else {
+	//cert, err = sh.server.caMap[caname].enrollSigner.Sign(req.SignRequest)
+	//}
+
+	//cert, err = sh.server.caMap[caname].enrollSigner.Sign(req.SignRequest)
+
 	// Send the response with the cert and the server info
+	if err != nil {
+		return err
+	}
+
 	resp := &enrollmentResponseNet{Cert: util.B64Encode(cert)}
 	err = sh.server.caMap[caname].fillCAInfo(&resp.ServerInfo)
 	if err != nil {
 		return err
 	}
-	log.Info("xxxxxxxxxxxx         4444444444444444444444444444")
 	return cfapi.SendResponse(w, resp)
 }
 
@@ -181,7 +184,7 @@ func (sh *signHandler) csrChecks(req *signer.SignRequest, enrollmentID string, r
 		if err == nil {
 			csrReq = ParseSm2CertificateRequest2X509(sm2csrReq)
 		}
-	}else {
+	} else {
 		csrReq, err = x509.ParseCertificateRequest(block.Bytes)
 	}
 	if err != nil {

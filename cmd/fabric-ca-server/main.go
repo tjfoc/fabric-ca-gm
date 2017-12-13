@@ -21,8 +21,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/hyperledger/fabric-ca/lib"
-	"github.com/hyperledger/fabric-ca/util"
+	"github.com/tjfoc/gmca/lib"
+	"github.com/tjfoc/gmca/util"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )

@@ -5,6 +5,7 @@ import (
 	"log"
 	"net"
 	"net/http"
+	//"github.com/cloudflare/cfssl/log"
 )
 
 // NetConnLookup extracts an IP from the remote address in the
@@ -74,6 +75,7 @@ func NewHandler(allow, deny http.Handler, acl ACL) (http.Handler, error) {
 
 // ServeHTTP wraps the request in a whitelist check.
 func (h *Handler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
+	log.Printf("Enter (lookup.go) ServerHTTP")
 	ip, err := HTTPRequestLookup(req)
 	if err != nil {
 		log.Printf("failed to lookup request address: %v", err)
@@ -83,12 +85,15 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	}
 
 	if h.whitelist.Permitted(ip) {
+		log.Printf("enter permitted")
+
 		h.allowHandler.ServeHTTP(w, req)
 	} else {
 		if h.denyHandler == nil {
 			status := http.StatusUnauthorized
 			http.Error(w, http.StatusText(status), status)
 		} else {
+			log.Printf("enter denyHandler.ServerHTTP")
 			h.denyHandler.ServeHTTP(w, req)
 		}
 	}

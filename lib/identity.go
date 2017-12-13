@@ -22,8 +22,8 @@ import (
 	"net/http"
 
 	"github.com/cloudflare/cfssl/log"
-	"github.com/hyperledger/fabric-ca/api"
-	"github.com/hyperledger/fabric-ca/util"
+	"github.com/tjfoc/gmca/api"
+	"github.com/tjfoc/gmca/util"
 	"github.com/hyperledger/fabric/bccsp"
 )
 

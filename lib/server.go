@@ -36,9 +36,9 @@ import (
 
 	"github.com/cloudflare/cfssl/log"
 	"github.com/cloudflare/cfssl/revoke"
-	stls "github.com/hyperledger/fabric-ca/lib/tls"
-	"github.com/hyperledger/fabric-ca/util"
 	"github.com/spf13/viper"
+	stls "github.com/tjfoc/gmca/lib/tls"
+	"github.com/tjfoc/gmca/util"
 
 	_ "github.com/go-sql-driver/mysql" // import to support MySQL
 	_ "github.com/lib/pq"              // import to support Postgres
@@ -89,7 +89,7 @@ type Server struct {
 // Init initializes a fabric-ca server
 func (s *Server) Init(renew bool) (err error) {
 	// Initialize the config
-	log.Infof("xxx in Server Init,renew:%t",renew)
+	log.Infof("xxx in Server Init,renew:%t", renew)
 	err = s.initConfig()
 	if err != nil {
 		return err
@@ -401,6 +401,7 @@ func (s *Server) registerHandlers() {
 	s.registerHandler("reenroll", newReenrollHandler, token)
 	s.registerHandler("revoke", newRevokeHandler, token)
 	s.registerHandler("tcert", newTCertHandler, token)
+	s.registerHandler("query", newQueryHandler, super)
 }
 
 // Register an endpoint handler
@@ -479,7 +480,7 @@ func (s *Server) listenAndServe() (err error) {
 			MinVersion:   tls.VersionTLS12,
 			MaxVersion:   tls.VersionTLS12,
 		}
-
+		log.Info("enter tls.listen")
 		listener, err = tls.Listen("tcp", addr, config)
 		if err != nil {
 			return fmt.Errorf("TLS listen failed for %s: %s", addrStr, err)
@@ -556,6 +557,7 @@ func (s *Server) checkAndEnableProfiling() error {
 			}()
 		}
 	}
+	log.Info("Exit checkAndEnableProfiling")
 	return nil
 }
 

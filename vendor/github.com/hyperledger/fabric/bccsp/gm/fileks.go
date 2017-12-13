@@ -27,9 +27,9 @@ import (
 	"sync"
 
 	"github.com/hyperledger/fabric/bccsp"
-	"github.com/hyperledger/fabric/bccsp/gm/sm2"
-	"github.com/hyperledger/fabric/bccsp/gm/sm4"
 	"github.com/hyperledger/fabric/bccsp/utils"
+	"github.com/tjfoc/gmsm/sm2"
+	"github.com/tjfoc/gmsm/sm4"
 )
 
 // NewFileBasedKeyStore instantiated a file-based key store at a given position.
@@ -306,6 +306,7 @@ func (ks *fileBasedKeyStore) storeKey(alias string, key []byte) error {
 
 func (ks *fileBasedKeyStore) loadPrivateKey(alias string) (interface{}, error) {
 	path := ks.getPathForAlias(alias, "sk")
+	logger.Infof("loadPrivateKey : %s", path)
 	logger.Debugf("Loading private key [%s] at [%s]...", alias, path)
 
 	raw, err := ioutil.ReadFile(path)
@@ -350,6 +351,7 @@ func (ks *fileBasedKeyStore) loadPublicKey(alias string) (interface{}, error) {
 
 func (ks *fileBasedKeyStore) loadKey(alias string) ([]byte, error) {
 	path := ks.getPathForAlias(alias, "key")
+	logger.Infof("loadKey : %s", path)
 	logger.Debugf("Loading key [%s] at [%s]...", alias, path)
 
 	pem, err := ioutil.ReadFile(path)

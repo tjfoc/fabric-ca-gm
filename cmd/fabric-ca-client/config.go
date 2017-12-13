@@ -25,10 +25,10 @@ import (
 	"strings"
 
 	"github.com/cloudflare/cfssl/log"
-	"github.com/hyperledger/fabric-ca/api"
-	"github.com/hyperledger/fabric-ca/lib"
-	"github.com/hyperledger/fabric-ca/util"
 	"github.com/spf13/viper"
+	"github.com/tjfoc/gmca/api"
+	"github.com/tjfoc/gmca/lib"
+	"github.com/tjfoc/gmca/util"
 )
 
 const (
@@ -186,8 +186,8 @@ caname:
 # crypto implementation library to use
 #############################################################################
 bccsp:
-    default: SW
-    sw:
+    default: GM
+    gmca:
         hash: SHA2
         security: 256
         filekeystore:

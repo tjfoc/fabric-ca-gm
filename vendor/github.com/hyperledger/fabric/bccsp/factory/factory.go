@@ -12,6 +12,7 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
+Modified create gmfactory by Tongji Fintech Research Institute on 2017-09-10.
 */
 package factory
 
@@ -61,7 +62,8 @@ func GetDefault() bccsp.BCCSP {
 		logger.Warning("Before using BCCSP, please call InitFactories(). Falling back to bootBCCSP.")
 		bootBCCSPInitOnce.Do(func() {
 			var err error
-			f := &SWFactory{}
+			//f := &SWFactory{}
+			f := &GMFactory{}
 			bootBCCSP, err = f.Get(GetDefaultOpts())
 			if err != nil {
 				panic("BCCSP Internal error, failed initialization with GetDefaultOpts!")

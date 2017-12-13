@@ -20,9 +20,9 @@ import (
 	"fmt"
 	"net/url"
 
-	"github.com/hyperledger/fabric-ca/api"
-	"github.com/hyperledger/fabric-ca/lib/tls"
 	"github.com/hyperledger/fabric/bccsp/factory"
+	"github.com/tjfoc/fabric-ca-gm/api"
+	"github.com/tjfoc/fabric-ca-gm/lib/tls"
 )
 
 // ClientConfig is the fabric-ca client's config

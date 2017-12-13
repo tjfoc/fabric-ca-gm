@@ -22,7 +22,7 @@ function runvet {
 }
 
 echo "Running go vet ..."
-found=$(runvet)
+#found=$(runvet)
 if [ "$found" != "" ]; then
    echo "YOU MUST FIX THE FOLLOWING GO VET PROBLEMS:"
    echo "$found"

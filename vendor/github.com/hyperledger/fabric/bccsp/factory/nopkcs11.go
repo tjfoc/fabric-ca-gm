@@ -56,7 +56,7 @@ func InitFactories(config *FactoryOpts) error {
 			var f BCCSPFactory
 			if strings.ToUpper(config.ProviderName) == "GM" {
 				f = &GMFactory{}
-			}else{
+			} else {
 				f = &SWFactory{}
 			}
 			err := initBCCSP(f, config)
