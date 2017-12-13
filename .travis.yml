@@ -12,15 +12,9 @@ install:
   #- make imports
   #- make rename
   #- make docker
-  - cd ..
-  - cd ..
-  - mv tjfoc hyperledger
-  - cd $GOPATH/src/github.com/hyperledger
-  - mv fabric-ca-gm fabric-ca
-  - cd $GOPATH/src/github.com/hyperledger/fabric-ca/cmd/fabric-ca-client
-  - go install
-  - cd $GOPATH/src/github.com/hyperledger/fabric-ca/cmd/fabric-ca-server
-  - go install
+  - rm -rf bin
+  - mkdir bin
+  - make
  
 notifications:
   email:
