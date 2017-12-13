@@ -20,7 +20,7 @@ import (
 	"io/ioutil"
 	"testing"
 
-	"github.com/tjfoc/gmca/util"
+	"github.com/tjfoc/fabric-ca-gm/util"
 	"github.com/stretchr/testify/assert"
 )
 

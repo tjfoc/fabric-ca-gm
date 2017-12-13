@@ -28,8 +28,8 @@ import (
 	//"github.com/hyperledger/fabric/bccsp/gm/sm2"
 	"github.com/cloudflare/cfssl/log"
 	"github.com/spf13/viper"
-	"github.com/tjfoc/gmca/api"
-	"github.com/tjfoc/gmca/util"
+	"github.com/tjfoc/fabric-ca-gm/api"
+	"github.com/tjfoc/fabric-ca-gm/util"
 	"github.com/tjfoc/gmsm/sm2"
 )
 

@@ -32,8 +32,8 @@ import (
 	"github.com/cloudflare/cfssl/signer"
 	//"github.com/hyperledger/fabric/bccsp/gm/sm2"
 
-	"github.com/tjfoc/gmca/api"
-	"github.com/tjfoc/gmca/util"
+	"github.com/tjfoc/fabric-ca-gm/api"
+	"github.com/tjfoc/fabric-ca-gm/util"
 	"github.com/tjfoc/gmsm/sm2"
 )
 

@@ -30,7 +30,7 @@ import (
 	cerr "github.com/cloudflare/cfssl/errors"
 	"github.com/cloudflare/cfssl/log"
 	"github.com/cloudflare/cfssl/revoke"
-	"github.com/tjfoc/gmca/util"
+	"github.com/tjfoc/fabric-ca-gm/util"
 )
 
 const (

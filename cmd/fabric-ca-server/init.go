@@ -20,7 +20,7 @@ import (
 	"fmt"
 	"github.com/cloudflare/cfssl/csr"
 	"github.com/spf13/cobra"
-	"github.com/tjfoc/gmca/util"
+	"github.com/tjfoc/fabric-ca-gm/util"
 )
 
 // InitConfig is the part of the config needed by init

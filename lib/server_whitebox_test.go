@@ -18,7 +18,7 @@ package lib
 import (
 	"testing"
 
-	"github.com/tjfoc/gmca/lib/spi"
+	"github.com/tjfoc/fabric-ca-gm/lib/spi"
 )
 
 const (

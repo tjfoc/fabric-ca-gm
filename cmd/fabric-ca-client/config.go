@@ -26,9 +26,9 @@ import (
 
 	"github.com/cloudflare/cfssl/log"
 	"github.com/spf13/viper"
-	"github.com/tjfoc/gmca/api"
-	"github.com/tjfoc/gmca/lib"
-	"github.com/tjfoc/gmca/util"
+	"github.com/tjfoc/fabric-ca-gm/api"
+	"github.com/tjfoc/fabric-ca-gm/lib"
+	"github.com/tjfoc/fabric-ca-gm/util"
 )
 
 const (

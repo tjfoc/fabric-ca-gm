@@ -20,8 +20,8 @@ import (
 	"time"
 
 	"github.com/cloudflare/cfssl/csr"
-	"github.com/tjfoc/gmca/lib/tcert"
-	//"github.com/tjfoc/gmca/lib"
+	"github.com/tjfoc/fabric-ca-gm/lib/tcert"
+	//"github.com/tjfoc/fabric-ca-gm/lib"
 )
 
 

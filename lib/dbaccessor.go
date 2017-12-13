@@ -23,8 +23,8 @@ import (
 	"strings"
 
 	"github.com/cloudflare/cfssl/log"
-	"github.com/tjfoc/gmca/api"
-	"github.com/tjfoc/gmca/lib/spi"
+	"github.com/tjfoc/fabric-ca-gm/api"
+	"github.com/tjfoc/fabric-ca-gm/lib/spi"
 	"golang.org/x/crypto/bcrypt"
 
 	"github.com/jmoiron/sqlx"

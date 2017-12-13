@@ -37,8 +37,8 @@ import (
 	"github.com/cloudflare/cfssl/log"
 	"github.com/cloudflare/cfssl/revoke"
 	"github.com/spf13/viper"
-	stls "github.com/tjfoc/gmca/lib/tls"
-	"github.com/tjfoc/gmca/util"
+	stls "github.com/tjfoc/fabric-ca-gm/lib/tls"
+	"github.com/tjfoc/fabric-ca-gm/util"
 
 	_ "github.com/go-sql-driver/mysql" // import to support MySQL
 	_ "github.com/lib/pq"              // import to support Postgres
@@ -401,7 +401,6 @@ func (s *Server) registerHandlers() {
 	s.registerHandler("reenroll", newReenrollHandler, token)
 	s.registerHandler("revoke", newRevokeHandler, token)
 	s.registerHandler("tcert", newTCertHandler, token)
-	s.registerHandler("query", newQueryHandler, super)
 }
 
 // Register an endpoint handler

@@ -27,9 +27,9 @@ import (
 	cfsslapi "github.com/cloudflare/cfssl/api"
 	"github.com/cloudflare/cfssl/log"
 
-	"github.com/tjfoc/gmca/api"
-	"github.com/tjfoc/gmca/lib/spi"
-	"github.com/tjfoc/gmca/util"
+	"github.com/tjfoc/fabric-ca-gm/api"
+	"github.com/tjfoc/fabric-ca-gm/lib/spi"
+	"github.com/tjfoc/fabric-ca-gm/util"
 )
 
 // newRevokeHandler is constructor for revoke handler

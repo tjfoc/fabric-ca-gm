@@ -20,7 +20,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/tjfoc/gmca/util"
+	"github.com/tjfoc/fabric-ca-gm/util"
 )
 
 func TestGetCommandLineOptValue(t *testing.T) {

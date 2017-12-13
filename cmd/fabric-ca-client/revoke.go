@@ -23,8 +23,8 @@ import (
 
 	"github.com/cloudflare/cfssl/log"
 	"github.com/spf13/cobra"
-	"github.com/tjfoc/gmca/api"
-	"github.com/tjfoc/gmca/lib"
+	"github.com/tjfoc/fabric-ca-gm/api"
+	"github.com/tjfoc/fabric-ca-gm/lib"
 )
 
 var errInput = errors.New("Invalid usage; either --revoke.name and/or both --revoke.serial and --revoke.aki are required")

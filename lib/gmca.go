@@ -24,7 +24,7 @@ import (
 	"github.com/tjfoc/gmsm/sm2"
 
 	"github.com/cloudflare/cfssl/signer"
-	"github.com/tjfoc/gmca/util"
+	"github.com/tjfoc/fabric-ca-gm/util"
 )
 
 //证书签名

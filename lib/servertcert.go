@@ -25,9 +25,9 @@ import (
 	cfsslapi "github.com/cloudflare/cfssl/api"
 	cerr "github.com/cloudflare/cfssl/errors"
 	"github.com/cloudflare/cfssl/log"
-	"github.com/tjfoc/gmca/api"
-	"github.com/tjfoc/gmca/lib/tcert"
-	"github.com/tjfoc/gmca/util"
+	"github.com/tjfoc/fabric-ca-gm/api"
+	"github.com/tjfoc/fabric-ca-gm/lib/tcert"
+	"github.com/tjfoc/fabric-ca-gm/util"
 	"github.com/hyperledger/fabric/bccsp"
 )
 

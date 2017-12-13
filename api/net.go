@@ -18,7 +18,7 @@ package api
 
 import (
 	"github.com/cloudflare/cfssl/signer"
-	"github.com/tjfoc/gmca/lib/tcert"
+	"github.com/tjfoc/fabric-ca-gm/lib/tcert"
 )
 
 /*

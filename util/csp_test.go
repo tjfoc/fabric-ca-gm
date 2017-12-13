@@ -23,8 +23,8 @@ import (
 	"testing"
 
 	"github.com/cloudflare/cfssl/csr"
-	. "github.com/tjfoc/gmca/util"
-	"github.com/tjfoc/gmca/util/mocks"
+	. "github.com/tjfoc/fabric-ca-gm/util"
+	"github.com/tjfoc/fabric-ca-gm/util/mocks"
 	"github.com/hyperledger/fabric/bccsp"
 	"github.com/hyperledger/fabric/bccsp/factory"
 	"github.com/stretchr/testify/assert"

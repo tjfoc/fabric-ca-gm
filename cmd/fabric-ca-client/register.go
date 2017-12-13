@@ -22,7 +22,7 @@ import (
 
 	"github.com/cloudflare/cfssl/log"
 	"github.com/spf13/cobra"
-	"github.com/tjfoc/gmca/lib"
+	"github.com/tjfoc/fabric-ca-gm/lib"
 )
 
 // initCmd represents the init command

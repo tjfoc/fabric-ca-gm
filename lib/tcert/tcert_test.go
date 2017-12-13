@@ -20,7 +20,7 @@ import (
 	"testing"
 
 	"github.com/cloudflare/cfssl/log"
-	"github.com/tjfoc/gmca/util"
+	"github.com/tjfoc/fabric-ca-gm/util"
 )
 
 func TestTCertWithoutAttribute(t *testing.T) {
