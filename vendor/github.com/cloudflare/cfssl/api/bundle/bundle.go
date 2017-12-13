@@ -27,7 +27,6 @@ func NewHandler(caBundleFile, intBundleFile string) (http.Handler, error) {
 		return nil, err
 	}
 
-	log.Info("bundler API ready")
 	return api.HTTPHandler{Handler: b, Methods: []string{"POST"}}, nil
 }
 

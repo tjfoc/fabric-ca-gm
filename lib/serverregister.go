@@ -27,9 +27,9 @@ import (
 	cfsslapi "github.com/cloudflare/cfssl/api"
 	"github.com/cloudflare/cfssl/log"
 
-	"github.com/hyperledger/fabric-ca/api"
-	"github.com/hyperledger/fabric-ca/lib/spi"
-	"github.com/hyperledger/fabric-ca/util"
+	"github.com/tjfoc/fabric-ca-gm/api"
+	"github.com/tjfoc/fabric-ca-gm/lib/spi"
+	"github.com/tjfoc/fabric-ca-gm/util"
 )
 
 // registerHandler for register requests
@@ -201,6 +201,7 @@ func (h *registerHandler) canRegister(registrar string, userType string, caname 
 
 	var roles []string
 	rolesStr := user.GetAttribute("hf.Registrar.Roles")
+	log.Info("================roles = ", rolesStr)
 	if rolesStr != "" {
 		roles = strings.Split(rolesStr, ",")
 	} else {
@@ -208,6 +209,7 @@ func (h *registerHandler) canRegister(registrar string, userType string, caname 
 	}
 	if userType != "" {
 		if !util.StrContained(userType, roles) {
+			//test user
 			return fmt.Errorf("Identity '%s' may not register type '%s'", registrar, userType)
 		}
 	} else {

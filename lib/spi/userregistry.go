@@ -20,7 +20,9 @@ limitations under the License.
 
 package spi
 
-import "github.com/hyperledger/fabric-ca/api"
+import "github.com/tjfoc/fabric-ca-gm/api"
+
+//"github.com/tjfoc/fabric-ca-gm/lib"
 
 // UserInfo contains information about a user
 type UserInfo struct {
@@ -49,6 +51,7 @@ type User interface {
 type UserRegistry interface {
 	GetUser(id string, attrs []string) (User, error)
 	GetUserInfo(id string) (UserInfo, error)
+	//GetAllInfoAndList() ([]UserInfo,error)
 	InsertUser(user UserInfo) error
 	UpdateUser(user UserInfo) error
 	DeleteUser(id string) error

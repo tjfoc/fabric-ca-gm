@@ -23,13 +23,14 @@ import (
 	"encoding/pem"
 	"errors"
 	"fmt"
-	"strings"
 	"io/ioutil"
-	"github.com/hyperledger/fabric/bccsp/gm/sm2"
+	"strings"
+	//"github.com/hyperledger/fabric/bccsp/gm/sm2"
 	"github.com/cloudflare/cfssl/log"
-	"github.com/hyperledger/fabric-ca/api"
-	"github.com/hyperledger/fabric-ca/util"
 	"github.com/spf13/viper"
+	"github.com/tjfoc/fabric-ca-gm/api"
+	"github.com/tjfoc/fabric-ca-gm/util"
+	"github.com/tjfoc/gmsm/sm2"
 )
 
 var clientAuthTypes = map[string]tls.ClientAuthType{
@@ -181,32 +182,31 @@ func getMaxEnrollments(userMaxEnrollments int, caMaxEnrollments int) (int, error
 	}
 }
 
-
 // SM2证书请求 转换 X509 证书请求
-func ParseSm2CertificateRequest2X509(sm2req *sm2.CertificateRequest) *x509.CertificateRequest{
+func ParseSm2CertificateRequest2X509(sm2req *sm2.CertificateRequest) *x509.CertificateRequest {
 	x509req := &x509.CertificateRequest{
-		Raw:                      sm2req.Raw, // Complete ASN.1 DER content (CSR, signature algorithm and signature).
+		Raw: sm2req.Raw, // Complete ASN.1 DER content (CSR, signature algorithm and signature).
 		RawTBSCertificateRequest: sm2req.RawTBSCertificateRequest, // Certificate request info part of raw ASN.1 DER content.
-		RawSubjectPublicKeyInfo:  sm2req.RawSubjectPublicKeyInfo, // DER encoded SubjectPublicKeyInfo.
-		RawSubject:              sm2req.RawSubject, // DER encoded Subject.
-	
+		RawSubjectPublicKeyInfo:  sm2req.RawSubjectPublicKeyInfo,  // DER encoded SubjectPublicKeyInfo.
+		RawSubject:               sm2req.RawSubject,               // DER encoded Subject.
+
 		Version:            sm2req.Version,
 		Signature:          sm2req.Signature,
 		SignatureAlgorithm: x509.SignatureAlgorithm(sm2req.SignatureAlgorithm),
-	
+
 		PublicKeyAlgorithm: x509.PublicKeyAlgorithm(sm2req.PublicKeyAlgorithm),
-		PublicKey:         sm2req.PublicKey,
-	
+		PublicKey:          sm2req.PublicKey,
+
 		Subject: sm2req.Subject,
-	
+
 		// Attributes is the dried husk of a bug and shouldn't be used.
 		Attributes: sm2req.Attributes,
-	
+
 		// Extensions contains raw X.509 extensions. When parsing CSRs, this
 		// can be used to extract extensions that are not parsed by this
 		// package.
 		Extensions: sm2req.Extensions,
-	
+
 		// ExtraExtensions contains extensions to be copied, raw, into any
 		// marshaled CSR. Values override any extensions that would otherwise
 		// be produced based on the other fields but are overridden by any
@@ -215,7 +215,7 @@ func ParseSm2CertificateRequest2X509(sm2req *sm2.CertificateRequest) *x509.Certi
 		// The ExtraExtensions field is not populated when parsing CSRs, see
 		// Extensions.
 		ExtraExtensions: sm2req.ExtraExtensions,
-	
+
 		// Subject Alternate Name values.
 		DNSNames:       sm2req.DNSNames,
 		EmailAddresses: sm2req.EmailAddresses,
@@ -226,7 +226,7 @@ func ParseSm2CertificateRequest2X509(sm2req *sm2.CertificateRequest) *x509.Certi
 
 var providerName string
 
-func IsGMConfig() bool{
+func IsGMConfig() bool {
 	if providerName == "" {
 		return false
 	}
@@ -236,6 +236,6 @@ func IsGMConfig() bool{
 	return false
 }
 
-func SetProviderName(name string){
+func SetProviderName(name string) {
 	providerName = name
 }

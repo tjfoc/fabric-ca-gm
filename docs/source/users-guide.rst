@@ -18,7 +18,7 @@ Hyperledger Fabric CA consists of both a server and a client component as
 described later in this document.
 
 For developers interested in contributing to Hyperledger Fabric CA, see the
-`Fabric CA repository <https://github.com/hyperledger/fabric-ca>`__ for more
+`Fabric CA repository <https://github.com/tjfoc/gmca>`__ for more
 information.
 
 
@@ -126,7 +126,7 @@ in $GOPATH/bin.
 
 .. code:: bash
 
-    go get -u github.com/hyperledger/fabric-ca/cmd/...
+    go get -u github.com/tjfoc/gmca/cmd/...
 
 Note: If you have already cloned the fabric-ca repository, make sure you are on the
 master branch before running the 'go get' command above. Otherwise, you might see the
@@ -134,7 +134,7 @@ following error:
 
 ::
 
-    <gopath>/src/github.com/hyperledger/fabric-ca; git pull --ff-only
+    <gopath>/src/github.com/tjfoc/gmca; git pull --ff-only
     There is no tracking information for the current branch.
     Please specify which branch you want to merge with.
     See git-pull(1) for details.
@@ -145,7 +145,7 @@ following error:
 
         git branch --set-upstream-to=<remote>/<branch> tlsdoc
 
-    package github.com/hyperledger/fabric-ca/cmd/fabric-ca-client: exit status 1
+    package github.com/tjfoc/fabric-ca-gm/cmd/fabric-ca-client: exit status 1
 
 Start Server Natively
 ~~~~~~~~~~~~~~~~~~~~~
@@ -169,12 +169,12 @@ Start Server via Docker
 Docker Hub
 ^^^^^^^^^^^^
 
-Go to: https://hub.docker.com/r/hyperledger/fabric-ca/tags/
+Go to: https://hub.docker.com/r/tjfoc/gmca/tags/
 
 Find the tag that matches the architecture and version of fabric-ca
 that you want to pull.
 
-Navigate to `$GOPATH/src/github.com/hyperledger/fabric-ca/docker/server`
+Navigate to `$GOPATH/src/github.com/tjfoc/gmca/docker/server`
 and open up docker-compose.yml in an editor.
 
 Change the `image` line to reflect the tag you found previously. The file
@@ -183,14 +183,14 @@ may look like this for an x86 architecture for version beta.
 .. code:: yaml
 
     fabric-ca-server:
-      image: hyperledger/fabric-ca:x86_64-1.0.0-beta
+      image: tjfoc/gmca:x86_64-1.0.0-beta
       container_name: fabric-ca-server
       ports:
         - "7054:7054"
       environment:
-        - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
+        - FABRIC_CA_HOME=/etc/tjfoc/gmca-server
       volumes:
-        - "./fabric-ca-server:/etc/hyperledger/fabric-ca-server"
+        - "./fabric-ca-server:/etc/tjfoc/gmca-server"
       command: sh -c 'fabric-ca-server start -b admin:adminpw'
 
 Open up a terminal in the same directory as the docker-compose.yml file
@@ -211,17 +211,17 @@ You can build and start the server via docker-compose as shown below.
 
 .. code:: bash
 
-    cd $GOPATH/src/github.com/hyperledger/fabric-ca
+    cd $GOPATH/src/github.com/tjfoc/gmca
     make docker
     cd docker/server
     docker-compose up -d
 
-The hyperledger/fabric-ca docker image contains both the fabric-ca-server and
+The tjfoc/gmca docker image contains both the fabric-ca-server and
 the fabric-ca-client.
 
 .. code:: bash
 
-    # cd $GOPATH/src/github.com/hyperledger/fabric-ca
+    # cd $GOPATH/src/github.com/tjfoc/gmca
     # FABRIC_CA_DYNAMIC_LINK=true make docker
     # cd docker/server
     # docker-compose up -d

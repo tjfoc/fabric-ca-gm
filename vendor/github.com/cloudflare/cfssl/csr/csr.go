@@ -19,7 +19,8 @@ import (
 	cferr "github.com/cloudflare/cfssl/errors"
 	"github.com/cloudflare/cfssl/helpers"
 	"github.com/cloudflare/cfssl/log"
-	"github.com/hyperledger/fabric/bccsp/gm/sm2"
+	"github.com/tjfoc/gmsm/sm2"
+	//"github.com/hyperledger/fabric/bccsp/gm/sm2"
 )
 
 const (
@@ -414,6 +415,7 @@ func Generate(priv crypto.Signer, req *CertificateRequest) (csr []byte, err erro
 
 	log.Info("encoded CSR")
 	csr = pem.EncodeToMemory(&block)
+	log.Info("encoded CSR end")
 	return
 }
 

@@ -23,7 +23,7 @@ import (
 	"strings"
 
 	"github.com/cloudflare/cfssl/log"
-	"github.com/hyperledger/fabric-ca/util"
+	"github.com/tjfoc/fabric-ca-gm/util"
 	"github.com/spf13/cobra"
 )
 

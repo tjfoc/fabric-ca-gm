@@ -299,7 +299,6 @@ func ParseOneCertificateFromPEM(certsPEM []byte) ([]*x509.Certificate, []byte, e
 	if block == nil {
 		return nil, rest, nil
 	}
-
 	cert, err := x509.ParseCertificate(block.Bytes)
 	if err != nil {
 		pkcs7data, err := pkcs7.ParsePKCS7(block.Bytes)

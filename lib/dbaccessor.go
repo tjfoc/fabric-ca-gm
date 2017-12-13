@@ -23,8 +23,8 @@ import (
 	"strings"
 
 	"github.com/cloudflare/cfssl/log"
-	"github.com/hyperledger/fabric-ca/api"
-	"github.com/hyperledger/fabric-ca/lib/spi"
+	"github.com/tjfoc/fabric-ca-gm/api"
+	"github.com/tjfoc/fabric-ca-gm/lib/spi"
 	"golang.org/x/crypto/bcrypt"
 
 	"github.com/jmoiron/sqlx"
@@ -66,6 +66,9 @@ DELETE FROM affiliations
 	getAffiliation = `
 SELECT name, prekey FROM affiliations
 	WHERE (name = ?)`
+
+	getAllUser = `
+SELECT * FROM users`
 )
 
 // UserRecord defines the properties of a user
@@ -225,20 +228,41 @@ func (d *Accessor) UpdateUser(user spi.UserInfo) error {
 
 // GetUser gets user from database
 func (d *Accessor) GetUser(id string, attrs []string) (spi.User, error) {
-	log.Debugf("DB: Getting identity %s", id)
-
 	err := d.checkDB()
 	if err != nil {
+		log.Infof("checkDB err = %s", err)
 		return nil, err
 	}
 
 	var userRec UserRecord
 	err = d.db.Get(&userRec, d.db.Rebind(getUser), id)
 	if err != nil {
+		log.Infof("db.Get err = %s", err)
 		return nil, err
 	}
 
 	return d.newDBUser(&userRec), nil
+}
+
+func (d *Accessor) GetAllInfoAndList() ([]UserRecord, error) {
+
+	userRec := []UserRecord{}
+	err := d.checkDB()
+	if err != nil {
+		return userRec, nil
+	}
+
+	err = d.db.Select(&userRec, "SELECT * FROM users")
+	for i := 0; i < len(userRec); i++ {
+	}
+	if err != nil {
+		log.Infof("db.Get err = %s", err)
+		return nil, err
+	}
+	for i := 0; i < len(userRec); i++ {
+		//allUser[i] = d.newDBUser(&userRec[i])
+	}
+	return userRec, nil
 }
 
 // GetUserInfo gets user information from database
@@ -366,14 +390,17 @@ func (u *DBUser) Login(pass string, caMaxEnrollments int) error {
 	// Check the password by comparing to stored hash
 	err := bcrypt.CompareHashAndPassword(u.pass, []byte(pass))
 	if err != nil {
+		log.Infof("Password mismatch: %s", err)
 		return fmt.Errorf("Password mismatch: %s", err)
 	}
 
 	if u.MaxEnrollments == 0 {
+		log.Infof("Zero is an invalid value for maximum enrollments on identity '%s'", u.Name)
 		return fmt.Errorf("Zero is an invalid value for maximum enrollments on identity '%s'", u.Name)
 	}
 
 	if u.State == -1 {
+		log.Infof("User %s is revoked; access denied", u.Name)
 		return fmt.Errorf("User %s is revoked; access denied", u.Name)
 	}
 
@@ -387,6 +414,7 @@ func (u *DBUser) Login(pass string, caMaxEnrollments int) error {
 	// If the maxEnrollments is set (i.e. >= 1), make sure we haven't exceeded this number of logins.
 	// The state variable keeps track of the number of previously successful logins.
 	if u.MaxEnrollments != -1 && u.State >= u.MaxEnrollments {
+		log.Infof("The identity %s has already enrolled %d times, it has reached its maximum enrollment allowance", u.Name, u.MaxEnrollments)
 		return fmt.Errorf("The identity %s has already enrolled %d times, it has reached its maximum enrollment allowance", u.Name, u.MaxEnrollments)
 	}
 
@@ -403,19 +431,23 @@ func (u *DBUser) Login(pass string, caMaxEnrollments int) error {
 	}
 	res, err := u.db.Exec(u.db.Rebind(stateUpdateSQL), args...)
 	if err != nil {
+		log.Infof("Failed to update state of identity %s to %d: %s", u.Name, state, err)
 		return fmt.Errorf("Failed to update state of identity %s to %d: %s", u.Name, state, err)
 	}
 
 	numRowsAffected, err := res.RowsAffected()
 	if err != nil {
+		log.Infof("db.RowsAffected failed: %s", err)
 		return fmt.Errorf("db.RowsAffected failed: %s", err)
 	}
 
 	if numRowsAffected == 0 {
+		log.Infof("No rows were affected when updating the state of identity %s", u.Name)
 		return fmt.Errorf("No rows were affected when updating the state of identity %s", u.Name)
 	}
 
 	if numRowsAffected != 1 {
+		log.Infof("%d rows were affected when updating the state of identity %s", numRowsAffected, u.Name)
 		return fmt.Errorf("%d rows were affected when updating the state of identity %s", numRowsAffected, u.Name)
 	}
 

@@ -18,7 +18,7 @@ package api
 
 import (
 	"github.com/cloudflare/cfssl/signer"
-	"github.com/hyperledger/fabric-ca/lib/tcert"
+	"github.com/tjfoc/fabric-ca-gm/lib/tcert"
 )
 
 /*
@@ -26,6 +26,15 @@ import (
  * and responses which flow over the network between a fabric-ca client
  * and the fabric-ca server.
  */
+
+
+// type QuerymentRequestNet struct {
+	//QuerymentRequest	
+//}
+
+type QuerymentResponseNet struct {
+	QuerymentRespone
+}
 
 // RegistrationRequestNet is the registration request for a new identity
 type RegistrationRequestNet struct {
@@ -73,6 +82,8 @@ type GetTCertBatchRequestNet struct {
 type GetTCertBatchResponseNet struct {
 	tcert.GetBatchResponse
 }
+
+
 
 // KeySig is a public key, signature, and signature algorithm tuple
 type KeySig struct {

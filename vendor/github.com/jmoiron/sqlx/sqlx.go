@@ -11,6 +11,7 @@ import (
 	"reflect"
 	"strings"
 
+	"github.com/cloudflare/cfssl/log"
 	"github.com/jmoiron/sqlx/reflectx"
 )
 
@@ -172,6 +173,7 @@ type Row struct {
 // underlying error from the internal rows object if it exists.
 func (r *Row) Scan(dest ...interface{}) error {
 	if r.err != nil {
+		log.Infof("r.err = %s", r.err)
 		return r.err
 	}
 
@@ -191,24 +193,31 @@ func (r *Row) Scan(dest ...interface{}) error {
 	defer r.rows.Close()
 	for _, dp := range dest {
 		if _, ok := dp.(*sql.RawBytes); ok {
+			log.Info("return errors.New")
 			return errors.New("sql: RawBytes isn't allowed on Row.Scan")
 		}
 	}
 
 	if !r.rows.Next() {
 		if err := r.rows.Err(); err != nil {
+			log.Infof("r.rows.err = %s", err)
 			return err
 		}
+		log.Infof("return sql.ErrNoRows = %s", sql.ErrNoRows)
 		return sql.ErrNoRows
 	}
+
 	err := r.rows.Scan(dest...)
 	if err != nil {
+		log.Info("r.rows.Scan err = %s", err)
 		return err
 	}
 	// Make sure the query can be processed to completion with no errors.
 	if err := r.rows.Close(); err != nil {
+		log.Info("r.rows.Close err  = %s", err)
 		return err
 	}
+	log.Info("exit scan")
 	return nil
 }
 
@@ -305,7 +314,12 @@ func (db *DB) Select(dest interface{}, query string, args ...interface{}) error 
 
 // Get using this DB.
 func (db *DB) Get(dest interface{}, query string, args ...interface{}) error {
+	//log.Info("enter DB.Get!")
 	return Get(db, dest, query, args...)
+}
+
+func (db *DB) GetAll(dest interface{}, query string, args ...interface{}) ([]interface{}, error) {
+	return GetAll(db, dest, query, args...)
 }
 
 // MustBegin starts a transaction, and panics on error.  Returns an *sqlx.Tx instead
@@ -331,8 +345,11 @@ func (db *DB) Beginx() (*Tx, error) {
 func (db *DB) Queryx(query string, args ...interface{}) (*Rows, error) {
 	r, err := db.DB.Query(query, args...)
 	if err != nil {
+		log.Info("Query(sqxl) err", err)
 		return nil, err
 	}
+	//log.Infof("Rows = ",)
+	log.Info("Exit Querxy(sqlx)")
 	return &Rows{Rows: r, unsafe: db.unsafe, Mapper: db.Mapper}, err
 }
 
@@ -558,9 +575,11 @@ func (r *Rows) MapScan(dest map[string]interface{}) error {
 // positions to fields to avoid that overhead per scan, which means it is not safe
 // to run StructScan on the same Rows instance with different struct types.
 func (r *Rows) StructScan(dest interface{}) error {
+	log.Info("(sqlx)Enter StructScan")
 	v := reflect.ValueOf(dest)
 
 	if v.Kind() != reflect.Ptr {
+		log.Info("(sqlx) exit StructScan from v.kind")
 		return errors.New("must pass a pointer, not a value, to StructScan destination")
 	}
 
@@ -569,6 +588,7 @@ func (r *Rows) StructScan(dest interface{}) error {
 	if !r.started {
 		columns, err := r.Columns()
 		if err != nil {
+			log.Infof("(sqlx) Exit StructScan from r.Coumns", err)
 			return err
 		}
 		m := r.Mapper
@@ -644,6 +664,11 @@ func Get(q Queryer, dest interface{}, query string, args ...interface{}) error {
 	return r.scanAny(dest, false)
 }
 
+func GetAll(q Queryer, dest interface{}, query string, args ...interface{}) ([]interface{}, error) {
+	r := q.QueryRowx(query, args...)
+	return r.SliceScan()
+}
+
 // LoadFile exec's every statement in a file (as a single call to Exec).
 // LoadFile may return a nil *sql.Result if errors are encountered locating or
 // reading the file at path.  LoadFile reads the entire file into memory, so it
@@ -688,36 +713,45 @@ func (r *Row) MapScan(dest map[string]interface{}) error {
 }
 
 func (r *Row) scanAny(dest interface{}, structOnly bool) error {
+	log.Info("Enter scanAny")
 	if r.err != nil {
+		log.Infof("r.err = %s", r.err)
 		return r.err
 	}
 	defer r.rows.Close()
 
+	log.Info("enter VlueOf")
 	v := reflect.ValueOf(dest)
 	if v.Kind() != reflect.Ptr {
+		log.Info("v.kind return")
 		return errors.New("must pass a pointer, not a value, to StructScan destination")
 	}
 	if v.IsNil() {
+		log.Info("v.IsNill return ")
 		return errors.New("nil pointer passed to StructScan destination")
 	}
 
+	log.Info("enter retflectx.Deref")
 	base := reflectx.Deref(v.Type())
 	scannable := isScannable(base)
-
 	if structOnly && scannable {
+		log.Info("Exit isScannable")
 		return structOnlyError(base)
 	}
 
 	columns, err := r.Columns()
 	if err != nil {
+		log.Infof("Colums err = %s", err)
 		return err
 	}
 
 	if scannable && len(columns) > 1 {
+		log.Infof("scannable dest type %s with >1 columns (%d) in result", base.Kind(), len(columns))
 		return fmt.Errorf("scannable dest type %s with >1 columns (%d) in result", base.Kind(), len(columns))
 	}
 
 	if scannable {
+		log.Info("exit and enter Scan")
 		return r.Scan(dest)
 	}
 
@@ -726,14 +760,17 @@ func (r *Row) scanAny(dest interface{}, structOnly bool) error {
 	fields := m.TraversalsByName(v.Type(), columns)
 	// if we are not unsafe and are missing fields, return an error
 	if f, err := missingFields(fields); err != nil && !r.unsafe {
+		log.Infof("missing destination name %s in %T", columns[f], dest)
 		return fmt.Errorf("missing destination name %s in %T", columns[f], dest)
 	}
 	values := make([]interface{}, len(columns))
 
 	err = fieldsByTraversal(v, fields, values, true)
 	if err != nil {
+		log.Infof("fieldsByTraversal err = %s", err)
 		return err
 	}
+	log.Info("r.Scan(values...)")
 	// scan into the struct field pointers and append to our results
 	return r.Scan(values...)
 }
@@ -873,11 +910,13 @@ func scanAll(rows rowsi, dest interface{}, structOnly bool) error {
 		return err
 	}
 
+	log.Info("Select 2")
 	// if it's a base type make sure it only has 1 column;  if not return an error
 	if scannable && len(columns) > 1 {
 		return fmt.Errorf("non-struct dest type %s with >1 columns (%d)", base.Kind(), len(columns))
 	}
 
+	log.Info("Select 3")
 	if !scannable {
 		var values []interface{}
 		var m *reflectx.Mapper
@@ -928,6 +967,7 @@ func scanAll(rows rowsi, dest interface{}, structOnly bool) error {
 		}
 	}
 
+	log.Info("Exit scanAll")
 	return rows.Err()
 }
 

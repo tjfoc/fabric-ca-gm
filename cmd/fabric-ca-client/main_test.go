@@ -30,10 +30,10 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hyperledger/fabric-ca/api"
-	"github.com/hyperledger/fabric-ca/lib"
-	"github.com/hyperledger/fabric-ca/lib/dbutil"
-	"github.com/hyperledger/fabric-ca/util"
+	"github.com/tjfoc/fabric-ca-gm/api"
+	"github.com/tjfoc/fabric-ca-gm/lib"
+	"github.com/tjfoc/fabric-ca-gm/lib/dbutil"
+	"github.com/tjfoc/fabric-ca-gm/util"
 	"github.com/stretchr/testify/assert"
 )
 

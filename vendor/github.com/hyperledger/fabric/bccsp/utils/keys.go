@@ -12,6 +12,7 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
+Modified create gmfactory by Tongji Fintech Research Institute on 2017-09-10.
 */
 
 package utils
@@ -27,7 +28,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/hyperledger/fabric/bccsp/gm/sm2"
+	"github.com/tjfoc/gmsm/sm2"
 )
 
 // struct to hold info required for PKCS#8
@@ -351,7 +352,7 @@ func PublicKeyToPEM(publicKey interface{}, pwd []byte) ([]byte, error) {
 			return nil, errors.New("Invalid sm2 public key. It must be different from nil.")
 		}
 
-		return sm2.WritePublicKeytoMem(k,nil)
+		return sm2.WritePublicKeytoMem(k, nil)
 
 	default:
 		return nil, errors.New("Invalid key type. It must be *ecdsa.PublicKey or *rsa.PublicKey")
@@ -428,7 +429,7 @@ func PublicKeyToEncryptedPEM(publicKey interface{}, pwd []byte) ([]byte, error) 
 			return nil, errors.New("Invalid ecdsa public key. It must be different from nil.")
 		}
 
-		return sm2.WritePublicKeytoMem(k,nil)
+		return sm2.WritePublicKeytoMem(k, nil)
 
 	default:
 		return nil, errors.New("Invalid key type. It must be *ecdsa.PublicKey")

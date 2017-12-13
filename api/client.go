@@ -20,8 +20,20 @@ import (
 	"time"
 
 	"github.com/cloudflare/cfssl/csr"
-	"github.com/hyperledger/fabric-ca/lib/tcert"
+	"github.com/tjfoc/fabric-ca-gm/lib/tcert"
+	//"github.com/tjfoc/fabric-ca-gm/lib"
 )
+
+
+type QuerymentRespone struct {
+		Name           string `json:"id"`
+		Pass           []byte `json:"token"`
+		Type           string `json:"type"`
+		Affiliation    string `json:"affiliation"`
+		Attributes     string `json:"attributes"`
+		State          int    `json:"state"`
+		MaxEnrollments int    `json:"max_enrollments"`
+}
 
 // RegistrationRequest for a new identity
 type RegistrationRequest struct {

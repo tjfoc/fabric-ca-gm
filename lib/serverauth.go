@@ -30,7 +30,7 @@ import (
 	cerr "github.com/cloudflare/cfssl/errors"
 	"github.com/cloudflare/cfssl/log"
 	"github.com/cloudflare/cfssl/revoke"
-	"github.com/hyperledger/fabric-ca/util"
+	"github.com/tjfoc/fabric-ca-gm/util"
 )
 
 const (
@@ -45,6 +45,7 @@ const (
 	noAuth authType = iota
 	basic           // basic = 1
 	token           // token = 2
+	super           // super = 3
 )
 
 // Fabric CA authentication handler
@@ -72,12 +73,11 @@ func (ah *fcaAuthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 // Handle performs authentication
 func (ah *fcaAuthHandler) serveHTTP(w http.ResponseWriter, r *http.Request) error {
 	log.Debugf("Received request\n%s", util.HTTPRequestToString(r))
-
 	// read body
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		log.Debugf("Failed to read body: %s", err)
-		return authError
+		return cerr.NewBadRequest(errors.New("Authorization failure1"))
 	}
 	r.Body = ioutil.NopCloser(bytes.NewReader(body))
 
@@ -99,6 +99,7 @@ func (ah *fcaAuthHandler) serveHTTP(w http.ResponseWriter, r *http.Request) erro
 
 	// Look up CA to see if CA exist by that name
 	if _, ok := ah.server.caMap[req.CAName]; !ok {
+
 		return fmt.Errorf("CA '%s' does not exist", req.CAName)
 	}
 
@@ -107,12 +108,15 @@ func (ah *fcaAuthHandler) serveHTTP(w http.ResponseWriter, r *http.Request) erro
 	authHdr := r.Header.Get("authorization")
 	switch ah.authType {
 	case noAuth:
+		return nil
+	case super:
+		log.Infof("authtype=%+v", ah.authType)
 		// No authentication required
 		return nil
 	case basic:
 		if authHdr == "" {
 			log.Debug("No authorization header")
-			return errNoAuthHdr
+			return cerr.NewBadRequest(errors.New("Authorization failure2"))
 		}
 		user, pwd, ok := r.BasicAuth()
 		if ok {
@@ -123,7 +127,8 @@ func (ah *fcaAuthHandler) serveHTTP(w http.ResponseWriter, r *http.Request) erro
 			u, err := ah.server.caMap[req.CAName].registry.GetUser(user, nil)
 			if err != nil {
 				log.Debugf("Failed to get identity '%s': %s", user, err)
-				return authError
+				log.Infof("Failed to get identity '%s': %s", user, err)
+				return cerr.NewBadRequest(errors.New("Authorization failure3"))
 			}
 			caMaxEnrollments := ah.server.caMap[req.CAName].Config.Registry.MaxEnrollments
 			if caMaxEnrollments == 0 {
@@ -134,21 +139,21 @@ func (ah *fcaAuthHandler) serveHTTP(w http.ResponseWriter, r *http.Request) erro
 			err = u.Login(pwd, caMaxEnrollments)
 			if err != nil {
 				log.Debugf("Failed to login '%s': %s", user, err)
-				return authError
+				return cerr.NewBadRequest(errors.New("Authorization failure4"))
 			}
 			log.Debug("Identity/Pass was correct")
 			r.Header.Set(enrollmentIDHdrName, user)
 			return nil
 		}
-		return authError
+		return cerr.NewBadRequest(errors.New("Authorization failure5"))
 	case token:
-
 		ca := ah.server.caMap[req.CAName]
+		//log.Infof("????????????????????????? caname = %s", req.CAName)
 		// verify token
 		cert, err2 := util.VerifyToken(ca.csp, authHdr, body)
 		if err2 != nil {
 			log.Debugf("Failed to verify token: %s", err2)
-			return authError
+			return cerr.NewBadRequest(errors.New("Authorization failure6"))
 		}
 
 		id := util.GetEnrollmentIDFromX509Certificate(cert)
@@ -158,48 +163,51 @@ func (ah *fcaAuthHandler) serveHTTP(w http.ResponseWriter, r *http.Request) erro
 		revokedOrExpired, checked := revoke.VerifyCertificate(cert)
 		if revokedOrExpired {
 			log.Debugf("Certificate owned by '%s' has expired", id)
-			return authError
+			return cerr.NewBadRequest(errors.New("Authorization failure7"))
 		}
+
 		if !checked {
 			log.Debug("A failure occurred while checking for revocation and expiration")
-			return authError
+			return cerr.NewBadRequest(errors.New("Authorization failure8"))
 		}
 
 		// Make sure the caller's cert was issued by this CA
 		err2 = ca.VerifyCertificate(cert)
 		if err2 != nil {
 			log.Debugf("Failed to verify certificate: %s", err2)
-			return authError
+			return cerr.NewBadRequest(errors.New("Authorization failure9"))
 		}
 
 		aki := hex.EncodeToString(cert.AuthorityKeyId)
 		serial := util.GetSerialAsHex(cert.SerialNumber)
-
+		//aki := cert.AuthorityKeyId.String()
+		//serial := cert.SerialNumber.String()
 		aki = strings.ToLower(strings.TrimLeft(aki, "0"))
 		serial = strings.ToLower(strings.TrimLeft(serial, "0"))
 
 		certs, err := ca.CertDBAccessor().GetCertificate(serial, aki)
 		if err != nil {
-			return authError
+			return cerr.NewBadRequest(errors.New("Authorization failure10"))
 		}
 
 		if len(certs) == 0 {
 			log.Error("No certificates found for provided serial and aki")
-			return authError
+			return cerr.NewBadRequest(errors.New("Authorization failure11"))
 		}
 
 		for _, certificate := range certs {
 			if certificate.Status == "revoked" {
-				return authError
+				return cerr.NewBadRequest(errors.New("Authorization failure12"))
 			}
 		}
-
 		log.Debugf("Successful authentication of '%s'", id)
 		r.Header.Set(enrollmentIDHdrName, util.GetEnrollmentIDFromX509Certificate(cert))
+
 		return nil
+
 	default: // control should never reach here
 		log.Errorf("No handler for the authentication type: %d", ah.authType)
-		return authError
+		return cerr.NewBadRequest(errors.New("Authorization failure13"))
 	}
-
+	return nil
 }

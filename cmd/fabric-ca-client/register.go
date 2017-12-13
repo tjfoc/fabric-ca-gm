@@ -21,8 +21,8 @@ import (
 	"path/filepath"
 
 	"github.com/cloudflare/cfssl/log"
-	"github.com/hyperledger/fabric-ca/lib"
 	"github.com/spf13/cobra"
+	"github.com/tjfoc/fabric-ca-gm/lib"
 )
 
 // initCmd represents the init command
@@ -36,7 +36,6 @@ var registerCmd = &cobra.Command{
 		if len(args) > 0 {
 			return fmt.Errorf(extraArgsError, args, cmd.UsageString())
 		}
-
 		err := configInit(cmd.Name())
 		if err != nil {
 			return err
@@ -73,7 +72,6 @@ func runRegister() error {
 	if err != nil {
 		return err
 	}
-
 	clientCfg.ID.CAName = clientCfg.CAName
 	resp, err := id.Register(&clientCfg.ID)
 	if err != nil {

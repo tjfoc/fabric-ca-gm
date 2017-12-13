@@ -33,11 +33,11 @@ import (
 	cfsslapi "github.com/cloudflare/cfssl/api"
 	"github.com/cloudflare/cfssl/csr"
 	"github.com/cloudflare/cfssl/log"
-	"github.com/hyperledger/fabric-ca/api"
-	"github.com/hyperledger/fabric-ca/lib/tls"
-	"github.com/hyperledger/fabric-ca/util"
 	"github.com/hyperledger/fabric/bccsp"
 	"github.com/mitchellh/mapstructure"
+	"github.com/tjfoc/fabric-ca-gm/api"
+	"github.com/tjfoc/fabric-ca-gm/lib/tls"
+	"github.com/tjfoc/fabric-ca-gm/util"
 )
 
 // Client is the fabric-ca client object
@@ -56,8 +56,9 @@ type Client struct {
 
 // Init initializes the client
 func (c *Client) Init() error {
-	SetProviderName(c.Config.CSP.ProviderName)
+
 	if !c.initialized {
+
 		cfg := c.Config
 		log.Debugf("Initializing client with config: %+v", cfg)
 		if cfg.MSPDir == "" {
@@ -90,12 +91,16 @@ func (c *Client) Init() error {
 		}
 		// Initialize BCCSP (the crypto layer)
 		c.csp, err = util.InitBCCSP(&cfg.CSP, mspDir, c.HomeDir)
+
+		log.Infof("xxx util.InitBCCSP after CSP pointer = %p", c.Config.CSP)
+
 		if err != nil {
 			return err
 		}
 		// Successfully initialized the client
 		c.initialized = true
 	}
+	SetProviderName(c.Config.CSP.ProviderName)
 	return nil
 }
 
@@ -187,6 +192,7 @@ func (c *Client) Enroll(req *api.EnrollmentRequest) (*EnrollmentResponse, error)
 	// Send the CSR to the fabric-ca server with basic auth header
 	post, err := c.newPost("enroll", body)
 	if err != nil {
+		log.Infof("newPost err = %s", err)
 		return nil, err
 	}
 	post.SetBasicAuth(req.Name, req.Secret)
@@ -246,11 +252,12 @@ func (c *Client) GenCSR(req *api.CSRInfo, id string) ([]byte, bccsp.Key, error) 
 
 	var csrPEM []byte
 	if IsGMConfig() {
-		csrPEM, err = generate(cspSigner,cr,key)
-	}else{
+		csrPEM, err = generate(cspSigner, cr, key)
+
+	} else {
 		csrPEM, err = csr.Generate(cspSigner, cr)
 	}
-	
+
 	if err != nil {
 		log.Debugf("failed generating CSR: %s", err)
 		return nil, nil, err
@@ -390,30 +397,22 @@ func (c *Client) newPost(endpoint string, reqBody []byte) (*http.Request, error)
 
 // SendReq sends a request to the fabric-ca-server and fills in the result
 func (c *Client) SendReq(req *http.Request, result interface{}) (err error) {
-
 	reqStr := util.HTTPRequestToString(req)
 	log.Debugf("Sending request\n%s", reqStr)
-
 	err = c.Init()
 	if err != nil {
 		return err
 	}
-
 	var tr = new(http.Transport)
-
 	if c.Config.TLS.Enabled {
-		log.Info("TLS Enabled")
-
 		err = tls.AbsTLSClient(&c.Config.TLS, c.HomeDir)
 		if err != nil {
 			return err
 		}
-
 		tlsConfig, err2 := tls.GetClientTLSConfig(&c.Config.TLS, c.csp)
 		if err2 != nil {
 			return fmt.Errorf("Failed to get client TLS config: %s", err2)
 		}
-
 		tr.TLSClientConfig = tlsConfig
 	}
 
@@ -431,20 +430,25 @@ func (c *Client) SendReq(req *http.Request, result interface{}) (err error) {
 		}
 		log.Debugf("Received response\n%s", util.HTTPResponseToString(resp))
 	}
+
 	var body *cfsslapi.Response
 	if respBody != nil && len(respBody) > 0 {
 		body = new(cfsslapi.Response)
 		err = json.Unmarshal(respBody, body)
 		if err != nil {
+			log.Infof("Unmarshl err = %s", err)
 			return fmt.Errorf("Failed to parse response: %s\n%s", err, respBody)
 		}
 		if len(body.Errors) > 0 {
 			msg := body.Errors[0].Message
+			log.Infof("error msg =%s", msg)
 			return fmt.Errorf("Error response from server was: %s", msg)
 		}
 	}
 	scode := resp.StatusCode
+	log.Infof("scode = %d", scode)
 	if scode >= 400 {
+
 		return fmt.Errorf("Failed with server status code %d for request:\n%s", scode, reqStr)
 	}
 	if body == nil {
@@ -457,6 +461,7 @@ func (c *Client) SendReq(req *http.Request, result interface{}) (err error) {
 	if result != nil {
 		return mapstructure.Decode(body.Result, result)
 	}
+
 	return nil
 }
 

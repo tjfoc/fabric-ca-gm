@@ -78,8 +78,13 @@ func (h HTTPHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	if match {
+		log.Infof("h = %+v\n", h)
+		log.Infof("w = %+v\n", w)
+		log.Info("r = %+v\n", r)
+
 		err = h.Handle(w, r)
 	} else {
+		log.Infof("not match")
 		err = errors.NewMethodNotAllowed(r.Method)
 	}
 	status := HandleError(w, err)
@@ -170,6 +175,13 @@ type ResponseMessage struct {
 // Response implements the CloudFlare standard for API
 // responses.
 type Response struct {
+	Success  bool              `json:"success"`
+	Result   interface{}       `json:"result"`
+	Errors   []ResponseMessage `json:"errors"`
+	Messages []ResponseMessage `json:"messages"`
+}
+
+type SuperResponse struct {
 	Success  bool              `json:"success"`
 	Result   interface{}       `json:"result"`
 	Errors   []ResponseMessage `json:"errors"`

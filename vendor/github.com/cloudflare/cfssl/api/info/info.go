@@ -110,7 +110,6 @@ func (h *MultiHandler) Handle(w http.ResponseWriter, r *http.Request) error {
 	log.Debug("getting info")
 	resp, err := h.signers[req.Label].Info(*req)
 	if err != nil {
-		log.Infof("error getting certificate: %v", err)
 		return err
 	}
 

@@ -7,6 +7,7 @@ import (
 
 	"github.com/cloudflare/cfssl/certdb"
 	cferr "github.com/cloudflare/cfssl/errors"
+	"github.com/cloudflare/cfssl/log"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/kisielk/sqlstruct"
@@ -132,12 +133,13 @@ func (d *Accessor) GetCertificate(serial, aki string) (crs []certdb.CertificateR
 	if err != nil {
 		return nil, err
 	}
-
+	log.Infof("**********333********** serial = %s,aki = %s,len(aki)=%d", serial, aki, len(aki))
 	err = d.db.Select(&crs, fmt.Sprintf(d.db.Rebind(selectSQL), sqlstruct.Columns(certdb.CertificateRecord{})), serial, aki)
 	if err != nil {
 		return nil, wrapSQLError(err)
 	}
 
+	log.Infof("*********333*********** GetCertificate ! csr=%+v", crs)
 	return crs, nil
 }
 
