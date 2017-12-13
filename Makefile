@@ -55,7 +55,7 @@ path-map.fabric-ca-server := ./cmd/fabric-ca-server
 
 include docker-env.mk
 
-all: rename docker fabric-ca-server fabric-ca-client
+all: rename fabric-ca-server fabric-ca-client
 
 rename: .FORCE
 	@scripts/rename-repo
