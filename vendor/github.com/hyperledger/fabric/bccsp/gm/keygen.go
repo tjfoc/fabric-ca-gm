@@ -18,7 +18,7 @@ package gm
 import (
 	"fmt"
 
-	"github.com/hyperledger/fabric/bccsp"
+	"github.com/tjfoc/hyperledger-fabric-gm/bccsp"
 	"github.com/tjfoc/gmsm/sm2"
 )
 

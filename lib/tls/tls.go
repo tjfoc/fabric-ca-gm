@@ -26,8 +26,8 @@ import (
 
 	"github.com/cloudflare/cfssl/log"
 	"github.com/tjfoc/fabric-ca-gm/util"
-	"github.com/hyperledger/fabric/bccsp"
-	"github.com/hyperledger/fabric/bccsp/factory"
+	"github.com/tjfoc/hyperledger-fabric-gm/bccsp"
+	"github.com/tjfoc/hyperledger-fabric-gm/bccsp/factory"
 )
 
 // ServerTLSConfig defines key material for a TLS server

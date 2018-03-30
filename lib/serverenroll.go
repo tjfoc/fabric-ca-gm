@@ -30,7 +30,7 @@ import (
 	cferr "github.com/cloudflare/cfssl/errors"
 	"github.com/cloudflare/cfssl/log"
 	"github.com/cloudflare/cfssl/signer"
-	//"github.com/hyperledger/fabric/bccsp/gm/sm2"
+	//"github.com/tjfoc/hyperledger-fabric-gm/bccsp/gm/sm2"
 
 	"github.com/tjfoc/fabric-ca-gm/api"
 	"github.com/tjfoc/fabric-ca-gm/util"

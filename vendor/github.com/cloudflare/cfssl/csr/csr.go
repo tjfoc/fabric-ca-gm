@@ -20,7 +20,6 @@ import (
 	"github.com/cloudflare/cfssl/helpers"
 	"github.com/cloudflare/cfssl/log"
 	"github.com/tjfoc/gmsm/sm2"
-	//"github.com/hyperledger/fabric/bccsp/gm/sm2"
 )
 
 const (

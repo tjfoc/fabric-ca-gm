@@ -37,8 +37,8 @@ import (
 	"github.com/cloudflare/cfssl/initca"
 	"github.com/cloudflare/cfssl/log"
 	"github.com/cloudflare/cfssl/signer"
-	"github.com/hyperledger/fabric/bccsp"
-	"github.com/hyperledger/fabric/bccsp/gm"
+	"github.com/tjfoc/hyperledger-fabric-gm/bccsp"
+	"github.com/tjfoc/hyperledger-fabric-gm/bccsp/gm"
 	"github.com/jmoiron/sqlx"
 	"github.com/tjfoc/fabric-ca-gm/api"
 	"github.com/tjfoc/fabric-ca-gm/lib/dbutil"
@@ -332,6 +332,7 @@ func (ca *CA) getCACert() (cert []byte, err error) {
 
 		KeyRequest := cfcsr.NewBasicKeyRequest()
 		if IsGMConfig() {
+			fmt.Println("11111111111111111111111111111111111111111111111111111111")
 			KeyRequest = cfcsr.NewGMKeyRequest()
 		}
 		req := cfcsr.CertificateRequest{

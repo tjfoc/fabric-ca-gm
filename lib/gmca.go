@@ -19,9 +19,9 @@ import (
 	"github.com/cloudflare/cfssl/certdb"
 	"github.com/cloudflare/cfssl/csr"
 	"github.com/cloudflare/cfssl/log"
-	"github.com/hyperledger/fabric/bccsp"
-	"github.com/hyperledger/fabric/bccsp/gm"
 	"github.com/tjfoc/gmsm/sm2"
+	"github.com/tjfoc/hyperledger-fabric-gm/bccsp"
+	"github.com/tjfoc/hyperledger-fabric-gm/bccsp/gm"
 
 	"github.com/cloudflare/cfssl/signer"
 	"github.com/tjfoc/fabric-ca-gm/util"
@@ -111,6 +111,7 @@ func createGmSm2Cert(key bccsp.Key, req *csr.CertificateRequest, priv crypto.Sig
 	if err != nil {
 		return nil, err
 	}
+	log.Infof("key is %T   ---%T", sm2Template.PublicKey, sm2Template)
 	cert, err = gm.CreateCertificateToMem(sm2Template, sm2Template, key)
 	return
 }
@@ -136,6 +137,9 @@ func parseCertificateRequest(csrBytes []byte) (template *sm2.Certificate, err er
 		IPAddresses:        csrv.IPAddresses,
 		EmailAddresses:     csrv.EmailAddresses,
 	}
+
+	fmt.Printf("^^^^^^^^^^^^^^^^^^^^^^^^^^algorithn = %v, %v\n", template.PublicKeyAlgorithm, template.SignatureAlgorithm)
+	log.Infof("xxxx publicKey :%T", template.PublicKey)
 
 	template.NotBefore = time.Now()
 	template.NotAfter = time.Now().Add(time.Hour * 1000)

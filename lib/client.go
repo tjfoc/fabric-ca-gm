@@ -33,11 +33,11 @@ import (
 	cfsslapi "github.com/cloudflare/cfssl/api"
 	"github.com/cloudflare/cfssl/csr"
 	"github.com/cloudflare/cfssl/log"
-	"github.com/hyperledger/fabric/bccsp"
 	"github.com/mitchellh/mapstructure"
 	"github.com/tjfoc/fabric-ca-gm/api"
 	"github.com/tjfoc/fabric-ca-gm/lib/tls"
 	"github.com/tjfoc/fabric-ca-gm/util"
+	"github.com/tjfoc/hyperledger-fabric-gm/bccsp"
 )
 
 // Client is the fabric-ca client object
@@ -329,6 +329,8 @@ func (c *Client) LoadIdentity(keyFile, certFile string) (*Identity, error) {
 		return nil, err
 	}
 	key, _, _, err := util.GetSignerFromCertFile(certFile, c.csp)
+	log.Info("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", err)
+	log.Info("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 	if err != nil {
 		// Fallback: attempt to read out of keyFile and import
 		log.Debugf("No key found in BCCSP keystore, attempting fallback")

@@ -17,7 +17,7 @@ limitations under the License.
 package util
 
 import (
-	//"github.com/hyperledger/fabric/bccsp/gm/sm2"
+	//"github.com/tjfoc/hyperledger-fabric-gm/bccsp/gm/sm2"
 	"bytes"
 	"crypto/ecdsa"
 	"crypto/rsa"
@@ -45,7 +45,7 @@ import (
 	"github.com/tjfoc/gmsm/sm2"
 
 	"github.com/cloudflare/cfssl/log"
-	"github.com/hyperledger/fabric/bccsp"
+	"github.com/tjfoc/hyperledger-fabric-gm/bccsp"
 	"github.com/spf13/viper"
 	"golang.org/x/crypto/ocsp"
 )

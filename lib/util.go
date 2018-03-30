@@ -25,7 +25,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"strings"
-	//"github.com/hyperledger/fabric/bccsp/gm/sm2"
+	//"github.com/tjfoc/hyperledger-fabric-gm/bccsp/gm/sm2"
 	"github.com/cloudflare/cfssl/log"
 	"github.com/spf13/viper"
 	"github.com/tjfoc/fabric-ca-gm/api"

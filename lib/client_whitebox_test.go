@@ -27,10 +27,10 @@ import (
 	"github.com/cloudflare/cfssl/log"
 	"github.com/cloudflare/cfssl/signer"
 	"github.com/tjfoc/fabric-ca-gm/util"
-	"github.com/hyperledger/fabric/bccsp"
-	"github.com/hyperledger/fabric/bccsp/factory"
-	cspsigner "github.com/hyperledger/fabric/bccsp/signer"
-	"github.com/hyperledger/fabric/bccsp/utils"
+	"github.com/tjfoc/hyperledger-fabric-gm/bccsp"
+	"github.com/tjfoc/hyperledger-fabric-gm/bccsp/factory"
+	cspsigner "github.com/tjfoc/hyperledger-fabric-gm/bccsp/signer"
+	"github.com/tjfoc/hyperledger-fabric-gm/bccsp/utils"
 	"github.com/tjfoc/fabric-ca-gm/api"
 )
 

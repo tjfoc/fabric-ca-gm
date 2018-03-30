@@ -16,7 +16,7 @@ limitations under the License.  */
 package util
 
 import (
-	//"github.com/hyperledger/fabric/bccsp/gm/sm2"
+	//"github.com/tjfoc/hyperledger-fabric-gm/bccsp/gm/sm2"
 	"crypto"
 	"crypto/ecdsa"
 	"crypto/rsa"
@@ -40,12 +40,14 @@ import (
 	_ "github.com/cloudflare/cfssl/ocsp" // for ocspSignerFromConfig
 	"github.com/cloudflare/cfssl/signer"
 	"github.com/cloudflare/cfssl/signer/local"
-	"github.com/hyperledger/fabric/bccsp"
-	"github.com/hyperledger/fabric/bccsp/factory"
-	"github.com/hyperledger/fabric/bccsp/gm"
-	cspsigner "github.com/hyperledger/fabric/bccsp/signer"
-	"github.com/hyperledger/fabric/bccsp/utils"
+	//"github.com/tjfoc/gmsm/sm2"
 	"github.com/tjfoc/gmsm/sm2"
+	"github.com/tjfoc/hyperledger-fabric-gm/bccsp"
+	"github.com/tjfoc/hyperledger-fabric-gm/bccsp/factory"
+	"github.com/tjfoc/hyperledger-fabric-gm/bccsp/gm"
+	cspsigner "github.com/tjfoc/hyperledger-fabric-gm/bccsp/signer"
+	"github.com/tjfoc/hyperledger-fabric-gm/bccsp/utils"
+	//"github.com/tjfoc/hyperledger-fabric-gm/vendor/github.com/tjfoc/gmsm/sm2"
 )
 
 // GetDefaultBCCSP returns the default BCCSP
@@ -228,6 +230,7 @@ func getBCCSPKeyOpts(kr csr.KeyRequest, ephemeral bool) (opts bccsp.KeyGenOpts, 
 		case 256:
 			return &bccsp.ECDSAP256KeyGenOpts{Temporary: ephemeral}, nil
 		case 384:
+
 			return &bccsp.ECDSAP384KeyGenOpts{Temporary: ephemeral}, nil
 		case 521:
 			// Need to add curve P521 to bccsp
@@ -291,11 +294,13 @@ func GetSignerFromCertFile(certFile string, csp bccsp.BCCSP) (bccsp.Key, crypto.
 		return nil, nil, nil, err
 	}
 	cert, err := helpers.ParseCertificatePEM(certBytes)
+	//var newCert = &x509.Certificate{}
 	if err != nil || cert == nil {
 		sm2Cert, err := sm2.ReadCertificateFromPem(certFile)
 		if err != nil {
 			return nil, nil, nil, err
 		}
+
 		cert = gm.ParseSm2Certificate2X509(sm2Cert)
 	}
 	key, cspSigner, err := GetSignerFromCert(cert, csp)
@@ -347,6 +352,9 @@ func BCCSPKeyRequestGenerate(req *csr.CertificateRequest, myCSP bccsp.BCCSP) (bc
 		return nil, nil, err
 	}
 	key, err := myCSP.KeyGen(keyOpts)
+
+	fmt.Printf("+++++++++++++++key = %T\n", key)
+
 	if err != nil {
 		return nil, nil, err
 	}

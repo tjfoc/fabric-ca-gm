@@ -124,7 +124,7 @@ func testInsertAndGetUser(ta TestAccessor, t *testing.T) {
 		//	name:  "hf.Registrar.Roles",
 		//	value: "true",
 		//},
-		Attributes:     []api.Attribute{{Name: "hf.Registrar.Roles", Value: "client,user,peer"}, {Name: "hf.IntermediateCA", Value: "true"}},
+		Attributes:     []api.Attribute{{Name: "hf.Registrar.Roles", Value: "client,user,peer"}, {Name: "hf.IntermediateCA", Value: "false"}, {Name: "hf.Revoker", Value: "true"}},
 		MaxEnrollments: -1,
 	}
 
