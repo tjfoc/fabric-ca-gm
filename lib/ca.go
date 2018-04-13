@@ -37,8 +37,6 @@ import (
 	"github.com/cloudflare/cfssl/initca"
 	"github.com/cloudflare/cfssl/log"
 	"github.com/cloudflare/cfssl/signer"
-	"github.com/tjfoc/hyperledger-fabric-gm/bccsp"
-	"github.com/tjfoc/hyperledger-fabric-gm/bccsp/gm"
 	"github.com/jmoiron/sqlx"
 	"github.com/tjfoc/fabric-ca-gm/api"
 	"github.com/tjfoc/fabric-ca-gm/lib/dbutil"
@@ -48,6 +46,8 @@ import (
 	"github.com/tjfoc/fabric-ca-gm/lib/tls"
 	"github.com/tjfoc/fabric-ca-gm/util"
 	"github.com/tjfoc/gmsm/sm2"
+	"github.com/tjfoc/hyperledger-fabric-gm/bccsp"
+	"github.com/tjfoc/hyperledger-fabric-gm/bccsp/gm"
 
 	_ "github.com/go-sql-driver/mysql" // import to support MySQL
 	_ "github.com/lib/pq"              // import to support Postgres
@@ -332,7 +332,6 @@ func (ca *CA) getCACert() (cert []byte, err error) {
 
 		KeyRequest := cfcsr.NewBasicKeyRequest()
 		if IsGMConfig() {
-			fmt.Println("11111111111111111111111111111111111111111111111111111111")
 			KeyRequest = cfcsr.NewGMKeyRequest()
 		}
 		req := cfcsr.CertificateRequest{
