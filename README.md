@@ -1,10 +1,9 @@
 Fabric CA GM
-[![Build Status](https://travis-ci.org/tjfoc/fabric-ca-gm.svg?branch=master)](https://travis-ci.org/tjfoc/fabric-ca-gm)
 支持国密加密算法的Hyperledger Fabric CA版本
 
 版权所有 苏州同济区块链研究院有限公司(http://www.tj-fintech.com)
 
-Process Results Build Status Build Status
+Process Results [![Build Status](https://travis-ci.org/tjfoc/fabric-ca-gm.svg?branch=master)](https://travis-ci.org/tjfoc/fabric-ca-gm)
 
 Copyright Suzhou Tongji Fintech Research Institute 2017 All Rights Reserved. Licensed under the Apache License, Version 2.0 (the "License");
 
