@@ -342,6 +342,12 @@
 			"revisionTime": "2014-01-24T18:41:52Z"
 		},
 		{
+			"checksumSHA1": "DHHy4I8YSsE+k1JGcFZhBf/naFY=",
+			"path": "github.com/tjfoc/hyperledger-fabric-gm/bccsp",
+			"revision": "0d591b35ce15d62d58e9880c3a0081ba041813dc",
+			"revisionTime": "2018-04-12T05:46:28Z"
+		},
+		{
 			"checksumSHA1": "UWjVYmoHlIfHzVIskELHiJQtMOI=",
 			"path": "golang.org/x/crypto/bcrypt",
 			"revision": "a48ac81e47fd6f9ed1258f3b60ae9e75f93cb7ed",
@@ -474,5 +480,5 @@
 			"revisionTime": "2016-09-28T15:37:09Z"
 		}
 	],
-	"rootPath": "github.com/tjfoc/gmca"
+	"rootPath": "github.com/tjfoc/fabric-ca-gm"
 }
